@@ -18,31 +18,31 @@ In der Android Client-Anwendung kann sich der Benutzer einloggen, woraufhin sein
 
 ## Web Service
 
-- [] Aggregator Provider: Findet zu einer gegebenen Serie alle möglichen Informationen auf der Seite des jeweiligen Providers
-- [] Crawl Jobs: Zeigergesteuert durchsuchen der Datenbestände nach Neuigkeiten 
+- [ ] Aggregator Provider: Findet zu einer gegebenen Serie alle möglichen Informationen auf der Seite des jeweiligen Providers
+- [ ] Crawl Jobs: Zeigergesteuert durchsuchen der Datenbestände nach Neuigkeiten 
 
 ### API
 
-- [] Authentifizierung mit User-Credentials (Session/OAuth)
-- [] Read-Only API für die Abfrage von Informationen (Episoden-Daten, Nachrichten)
-- [] Write API, zum bewerten von Episoden (eventuell weiteres?)
-- [] Push notification zum senden an den Benutzer
+- [ ] Authentifizierung mit User-Credentials (Session/OAuth)
+- [ ] Read-Only API für die Abfrage von Informationen (Episoden-Daten, Nachrichten)
+- [ ] Write API, zum bewerten von Episoden (eventuell weiteres?)
+- [ ] Push notification zum senden an den Benutzer
 
 ## Android Client
 
 ### Activities
 
-- [] Kalender: Übersicht der bald erscheinenden Episoden aller markierten Serien
-- [] "Watch Again": Welche Episoden habe ich vor "einiger Zeit" gut bewertet, um sie eventuell erneut zu sehen
-- [] Übersicht: Alle Informationen (Cast, Episoden-Anzahl, Bewertungen) zu einer Bestimmten Serie, möglichkeit diese Serie ab jetzt zu "verfolgen"
-- [] Staffeln/Staffel/Episode: Alle Staffeln/Episoden einer Serie (Beschreibung, Bewertung, Gesehen?)
-- [] Suche: Findet neue Serien nach Suchbegriff
-- [] Watchlist: Liste aller "neuen" Episoden, welche noch nicht gesehen wurden.
+- [ ] Kalender: Übersicht der bald erscheinenden Episoden aller markierten Serien
+- [ ] "Watch Again": Welche Episoden habe ich vor "einiger Zeit" gut bewertet, um sie eventuell erneut zu sehen
+- [ ] Übersicht: Alle Informationen (Cast, Episoden-Anzahl, Bewertungen) zu einer Bestimmten Serie, möglichkeit diese Serie ab jetzt zu "verfolgen"
+- [ ] Staffeln/Staffel/Episode: Alle Staffeln/Episoden einer Serie (Beschreibung, Bewertung, Gesehen?)
+- [ ] Suche: Findet neue Serien nach Suchbegriff
+- [ ] Watchlist: Liste aller "neuen" Episoden, welche noch nicht gesehen wurden.
 
 ### Features
 
-- [] Einstellbare Push-Notifications: Der Benutzer kann Ereignisse (Neue Episode, News) global oder per Serie auswählen, um für diese sofort eine Benachrichtigung zu erhalten.
-- [] Synchronisation um kommende Episoden in den lokalen Kalender ein zu tragen
+- [ ] Einstellbare Push-Notifications: Der Benutzer kann Ereignisse (Neue Episode, News) global oder per Serie auswählen, um für diese sofort eine Benachrichtigung zu erhalten.
+- [ ] Synchronisation um kommende Episoden in den lokalen Kalender ein zu tragen
 
 # Quellen
 
