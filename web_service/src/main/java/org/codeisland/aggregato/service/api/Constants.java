@@ -1,0 +1,19 @@
+package org.codeisland.aggregato.service.api;
+
+/**
+ * @author Lukas Knuth
+ * @version 1.0
+ */
+public class Constants {
+
+    // Aus: https://console.developers.google.com/ > API's and Auth > Credentials
+    public static final String WEB_CLIENT_ID = "203492774524-i3okn41qjlugu6kt72ui2pdftveb25sm.apps.googleusercontent.com";
+    public static final String ANDROID_CLIENT_ID = "replace this with your Android client ID";
+    public static final String IOS_CLIENT_ID = "replace this with your iOS client ID";
+    public static final String ANDROID_AUDIENCE = WEB_CLIENT_ID;
+
+    public static final String EMAIL_SCOPE = "https://www.googleapis.com/auth/userinfo.email";
+    public static final String API_EXPLORER_CLIENT_ID = com.google.api.server.spi.Constant.API_EXPLORER_CLIENT_ID;
+
+
+}
