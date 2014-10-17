@@ -28,6 +28,14 @@
         <servlet-name>test</servlet-name>
         <url-pattern>/test</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>news_test</servlet-name>
+        <servlet-class>org.codeisland.aggregato.service.NewsParser</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>news_test</servlet-name>
+        <url-pattern>/news</url-pattern>
+    </servlet-mapping>
 
     <!-- The API Endpoint -->
     <servlet>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>News</title>
+</head>
+<body>
+
+    <form action='/news' method='post'>
+        <input type='hidden' name='update' value='jo'/>
+        <input type='submit' value='Update News'/>
+    </form>
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Desc</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#news}}
+            <tr>
+                <td><a href="{{link}}">{{title}}</a></td>
+                <td>{{description}}</td>
+                <td>{{pubDate}}</td>
+            </tr>
+            {{/news}}
+        </tbody>
+    </table>
+
+</body>
+</html>
