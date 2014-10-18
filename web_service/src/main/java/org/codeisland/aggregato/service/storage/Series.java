@@ -29,4 +29,9 @@ public class Series {
     public int getSeasons() {
         return season_count;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Series '%s' has %s seasons", name, season_count);
+    }
 }

@@ -36,6 +36,14 @@
         <servlet-name>news_test</servlet-name>
         <url-pattern>/news</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>calendar_test</servlet-name>
+        <servlet-class>org.codeisland.aggregato.service.Calendar</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>calendar_test</servlet-name>
+        <url-pattern>/calendar</url-pattern>
+    </servlet-mapping>
 
     <!-- The API Endpoint -->
     <servlet>
