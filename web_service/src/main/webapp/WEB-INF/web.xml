@@ -40,6 +40,7 @@
         <url-pattern>/tasks/series_worker</url-pattern>
     </servlet-mapping>
 
+    <!-- Servlets -->
     <servlet>
         <servlet-name>test</servlet-name>
         <servlet-class>org.codeisland.aggregato.service.Test</servlet-class>
@@ -71,7 +72,7 @@
         <servlet-class>com.google.api.server.spi.SystemServiceServlet</servlet-class>
         <init-param>
             <param-name>services</param-name>
-            <param-value>org.codeisland.aggregato.service.api.TestAPI</param-value>
+            <param-value>org.codeisland.aggregato.service.api.SeriesAPI</param-value>
         </init-param>
     </servlet>
     <servlet-mapping>

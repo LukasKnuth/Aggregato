@@ -33,7 +33,7 @@ public class SeriesWorker extends HttpServlet {
         SeriesFetcher fetcher = new TMDBFetcher();
 
         Series series = ofy().load().type(Series.class).
-                filter("name", series_name).first().now();
+                filter("name_normalized", series_name.toUpperCase()).first().now();
         if (series == null){
             // Not yet in the Database, find it!
             series = fetcher.getSeries(series_name);

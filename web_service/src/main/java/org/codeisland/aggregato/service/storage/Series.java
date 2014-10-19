@@ -12,12 +12,14 @@ import com.googlecode.objectify.annotation.Index;
 public class Series {
 
     @Id Long key;
-    @Index String name;
+    String name;
+    @Index String name_normalized; // We need this for case-insensitive filtering
     @Index int season_count; // need index for ordering!
     String tmdb_id; // TODO Store ID's somewhere seperate??
 
     public Series(String name, int season_count, String tmdb_id) {
         this.name = name;
+        this.name_normalized = name.toUpperCase();
         this.season_count = season_count;
         this.tmdb_id = tmdb_id;
     }

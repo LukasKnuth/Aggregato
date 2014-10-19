@@ -18,7 +18,7 @@ public class Episode {
     private @Id Long key;
     private @Index Date air_date;
     private @Index String title;
-    private @Load Ref<Series> series; // Loads along with this episode
+    private @Index @Load Ref<Series> series; // Loads along with this episode
 
     public Episode() {}
 

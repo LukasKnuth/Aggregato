@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
@@ -27,9 +28,15 @@ public class Test extends HttpServlet {
 
         String name = req.getParameter("name");
         if (name != null){
-            Series series = ofy().load().type(Series.class).filter("name", name).first().now();
-            if (series != null){
-                resp.getWriter().println(String.format("%s has %s seasons!", series.getName(), series.getSeasons()));
+            String name_normalized = name.toUpperCase();
+            List<Series> shows = ofy().load().type(Series.class).
+                    filter("name_normalized >=", name_normalized).
+                    filter("name_normalized <", name_normalized+"\uFFFD").
+                    list();
+            if (shows.size() > 0){
+                for (Series s : shows){
+                    resp.getWriter().format("%s has %s seasons!<br>", s.getName(), s.getSeasons());
+                }
             } else {
                 resp.getWriter().println("Series not found...");
             }
