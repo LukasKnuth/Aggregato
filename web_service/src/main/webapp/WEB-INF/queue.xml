@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<queue-entries>
+    <total-storage-limit>500M</total-storage-limit>
+    <queue>
+        <name>tvshows</name>
+        <rate>3/s</rate><!-- New Tokens added to bucket, per second -->
+        <bucket-size>10</bucket-size><!-- Max. Tokens in the Bucket -->
+        <max-concurrent-requests>20</max-concurrent-requests><!-- Max. concurrent executions-->
+        <retry-parameters>
+            <task-retry-limit>5</task-retry-limit>
+            <min-backof-time>600</min-backof-time><!-- if unsuccessful, retry after 10 minutes -->
+        </retry-parameters>
+    </queue>
+</queue-entries>

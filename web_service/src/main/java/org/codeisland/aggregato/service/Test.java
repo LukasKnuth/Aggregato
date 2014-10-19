@@ -52,7 +52,7 @@ public class Test extends HttpServlet {
         String seasons = req.getParameter("seasons");
         if (name != null && seasons != null){
             int se_count = Integer.parseInt(seasons);
-            Series series = new Series(name, se_count);
+            Series series = new Series(name, se_count, null);
             ofy().save().entity(series).now();
 
             resp.getWriter().println(name + " is stored!");

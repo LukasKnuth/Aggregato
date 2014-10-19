@@ -16,7 +16,7 @@ import java.util.Date;
 public class Episode {
 
     private @Id Long key;
-    private Date air_date;
+    private @Index Date air_date;
     private @Index String title;
     private @Load Ref<Series> series; // Loads along with this episode
 
@@ -38,5 +38,27 @@ public class Episode {
 
     public Series getSeries(){
         return series.get();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Episode episode = (Episode) o;
+
+        if (air_date != null ? !air_date.equals(episode.air_date) : episode.air_date != null) return false;
+        if (!series.equals(episode.series)) return false;
+        if (title != null ? !title.equals(episode.title) : episode.title != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = air_date != null ? air_date.hashCode() : 0;
+        result = 31 * result + (title != null ? title.hashCode() : 0);
+        result = 31 * result + series.hashCode();
+        return result;
     }
 }

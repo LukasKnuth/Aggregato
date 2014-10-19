@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class TMDBFetcher implements SeriesFetcher {
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-dd-mm");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
     private static final String BASE_URL = "http://api.themoviedb.org/";
     private static final String API_KEY = "f3737c9013174480c625c67f4d84d741";
@@ -43,7 +43,7 @@ public class TMDBFetcher implements SeriesFetcher {
                 JSONArray series = results.getJSONArray("results");
                 // TODO How do we decide here? Also, store the ID somewhere??
                 JSONObject first = series.getJSONObject(0);
-                return new Series(first.getString("name"), 0);
+                return new Series(first.getString("name"), 0, String.valueOf(first.getInt("id")) );
             } else {
                 return null;
             }
@@ -57,7 +57,9 @@ public class TMDBFetcher implements SeriesFetcher {
     public List<Episode> getEpisodes(Series series) {
         List<Episode> all_episodes = new ArrayList<>();
         try {
-            URL url = new URL(String.format(BASE_URL+API_VERSION+"/tv/%s/season/%s?api_key="+API_KEY, "1404-chuck", "1"));
+            URL url = new URL(String.format(
+                    BASE_URL+API_VERSION+"/tv/%s/season/%s?api_key="+API_KEY, series.getTmdbId(), "1"
+            ));
             Object json = new JSONTokener(url.openStream()).nextValue();
             if (json instanceof JSONArray){
                 throw new RuntimeException("Expected a JSON Object, got an array...");
