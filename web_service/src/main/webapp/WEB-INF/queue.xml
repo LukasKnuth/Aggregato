@@ -8,7 +8,7 @@
         <max-concurrent-requests>20</max-concurrent-requests><!-- Max. concurrent executions-->
         <retry-parameters>
             <task-retry-limit>5</task-retry-limit>
-            <min-backof-time>600</min-backof-time><!-- if unsuccessful, retry after 10 minutes -->
+            <min-backoff-seconds>600</min-backoff-seconds><!-- if unsuccessful, retry after 10 minutes -->
         </retry-parameters>
     </queue>
 </queue-entries>
