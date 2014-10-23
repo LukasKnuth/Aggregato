@@ -18,13 +18,19 @@ public class Episode implements Mergeable<Episode>{
     private @Id Long key;
     private @Index Date air_date;
     private @Index String title;
+    private String description;
+    private @Index int episode_number;
+    private int season_number;
     private @Index @Load Ref<Series> series; // Loads along with this episode
 
     public Episode() {}
 
-    public Episode(Series series, Date air_date, String title) {
+    public Episode(Series series, String title, int episode_number, int season_number, Date air_date, String description) {
         this.air_date = air_date;
         this.title = title;
+        this.description = description;
+        this.episode_number = episode_number;
+        this.season_number = season_number;
         this.series = Ref.create(series);
     }
 
@@ -40,12 +46,36 @@ public class Episode implements Mergeable<Episode>{
         return series.get();
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public int getEpisodeNumber() {
+        return episode_number;
+    }
+
+    public int getSeasonNumber() {
+        return season_number;
+    }
+
     @Override
     public void merge(Episode other) {
         // TODO What to do here, if we're not sure?? (Admin tool for review?)
         if (other.air_date != null && this.air_date == null){
             this.air_date = other.air_date;
         }
+        if (other.description != null){
+            if (this.description == null || this.description.isEmpty()){
+                this.description = other.description;
+            }
+        }
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s aired on %s as episode %s of season %s",
+                this.title, this.air_date.toString(), this.episode_number, this.season_number
+        );
     }
 
     @Override

@@ -78,7 +78,9 @@ public class TMDBFetcher implements SeriesFetcher {
                 }
 
                 all_episodes.add(new Episode(
-                        series, air_date, episode.getString("name")
+                        series, episode.getString("name"),
+                        episode.getInt("episode_number"), episode.getInt("season_number"),
+                        air_date, episode.getString("overview")
                 ));
             }
         } catch (IOException e) {
