@@ -13,7 +13,7 @@ import java.util.Date;
  * @version 1.0
  */
 @Entity
-public class Episode {
+public class Episode implements Mergeable<Episode>{
 
     private @Id Long key;
     private @Index Date air_date;
@@ -38,6 +38,14 @@ public class Episode {
 
     public Series getSeries(){
         return series.get();
+    }
+
+    @Override
+    public void merge(Episode other) {
+        // TODO What to do here, if we're not sure?? (Admin tool for review?)
+        if (other.air_date != null && this.air_date == null){
+            this.air_date = other.air_date;
+        }
     }
 
     @Override
