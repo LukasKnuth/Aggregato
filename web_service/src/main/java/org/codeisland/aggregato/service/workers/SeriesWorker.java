@@ -1,8 +1,8 @@
 package org.codeisland.aggregato.service.workers;
 
 import com.googlecode.objectify.ObjectifyService;
-import org.codeisland.aggregato.service.calendar.SeriesFetcher;
-import org.codeisland.aggregato.service.calendar.TMDBFetcher;
+import org.codeisland.aggregato.service.fetcher.SeriesFetcher;
+import org.codeisland.aggregato.service.fetcher.impl.TMDBFetcher;
 import org.codeisland.aggregato.service.storage.Episode;
 import org.codeisland.aggregato.service.storage.Series;
 

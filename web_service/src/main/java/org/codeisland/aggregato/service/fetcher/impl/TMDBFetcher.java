@@ -1,5 +1,6 @@
-package org.codeisland.aggregato.service.calendar;
+package org.codeisland.aggregato.service.fetcher.impl;
 
+import org.codeisland.aggregato.service.fetcher.SeriesFetcher;
 import org.codeisland.aggregato.service.storage.Episode;
 import org.codeisland.aggregato.service.storage.Series;
 import org.json.JSONArray;

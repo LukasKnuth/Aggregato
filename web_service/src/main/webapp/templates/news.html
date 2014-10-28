@@ -7,8 +7,11 @@
 <body>
 
     <form action='/news' method='post'>
-        <input type='hidden' name='update' value='jo'/>
-        <input type='submit' value='Update News'/>
+        <label>
+            Series to new from:
+            <input type="text" name="series_name">
+        </label>
+        <input type="submit" value="Load News">
     </form>
     <table>
         <thead>
@@ -24,6 +27,11 @@
                 <td><a href="{{link}}">{{title}}</a></td>
                 <td>{{description}}</td>
                 <td>{{pubDate}}</td>
+            </tr>
+            {{/news}}
+            {{^news}}
+            <tr>
+                <td colspan="3"><h3>No data here...</h3></td>
             </tr>
             {{/news}}
         </tbody>

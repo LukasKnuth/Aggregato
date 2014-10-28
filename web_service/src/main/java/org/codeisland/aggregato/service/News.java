@@ -1,33 +1,30 @@
 package org.codeisland.aggregato.service;
 
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
 import com.googlecode.objectify.ObjectifyService;
 import com.samskivert.mustache.Mustache;
-import org.codeisland.aggregato.service.news.RssHandler;
-import org.codeisland.aggregato.service.storage.News;
-import org.xml.sax.SAXException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
 /**
  * @author Lukas Knuth
  * @version 1.0
  */
-public class NewsParser extends HttpServlet{
+public class News extends HttpServlet {
 
     static {
-        ObjectifyService.register(News.class);
+        ObjectifyService.register(org.codeisland.aggregato.service.storage.News.class);
     }
 
     @Override
@@ -37,21 +34,21 @@ public class NewsParser extends HttpServlet{
         Mustache.compiler().
                 compile(new InputStreamReader(new FileInputStream("templates/news.html"))).
                 execute(new Object() {
-                    List<News> news = ofy().load().type(News.class).list(); // Just set the name for the mustache section.
+                    List<org.codeisland.aggregato.service.storage.News> news = ofy().load().type(org.codeisland.aggregato.service.storage.News.class).list(); // Just set the name for the mustache section.
                 }, resp.getWriter());
 
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        if (req.getParameter("update") != null){
-            try {
-                SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
-                parser.parse("http://www.serienjunkies.de/rss/news.xml", new RssHandler("en"));
-            } catch (ParserConfigurationException | SAXException e) {
-                resp.getWriter().println(e);
-            }
-            resp.getWriter().println("Updated news catalog!");
+        String series_name = req.getParameter("series_name");
+        if (series_name != null && !series_name.isEmpty()){
+            Queue queue = QueueFactory.getQueue("news");
+            queue.add(withUrl("/tasks/news_worker").param("series_name", series_name));
+
+            resp.getWriter().println("Execution is queued!");
+        } else {
+            resp.getWriter().println("No Series given!");
         }
     }
 }

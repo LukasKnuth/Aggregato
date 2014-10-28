@@ -39,19 +39,19 @@
         <servlet-name>series_worker</servlet-name>
         <url-pattern>/tasks/series_worker</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>news_worker</servlet-name>
+        <servlet-class>org.codeisland.aggregato.service.workers.NewsWorker</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>news_worker</servlet-name>
+        <url-pattern>/tasks/news_worker</url-pattern>
+    </servlet-mapping>
 
     <!-- Servlets -->
     <servlet>
-        <servlet-name>test</servlet-name>
-        <servlet-class>org.codeisland.aggregato.service.Test</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>test</servlet-name>
-        <url-pattern>/test</url-pattern>
-    </servlet-mapping>
-    <servlet>
         <servlet-name>news_test</servlet-name>
-        <servlet-class>org.codeisland.aggregato.service.NewsParser</servlet-class>
+        <servlet-class>org.codeisland.aggregato.service.News</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>news_test</servlet-name>

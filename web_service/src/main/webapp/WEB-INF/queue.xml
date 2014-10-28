@@ -11,4 +11,9 @@
             <min-backoff-seconds>600</min-backoff-seconds><!-- if unsuccessful, retry after 10 minutes -->
         </retry-parameters>
     </queue>
+    <queue>
+        <name>news</name>
+        <rate>20/s</rate>
+        <bucket-size>40</bucket-size>
+    </queue>
 </queue-entries>
