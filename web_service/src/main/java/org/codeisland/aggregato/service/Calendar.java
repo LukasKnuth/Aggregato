@@ -37,7 +37,7 @@ public class Calendar extends HttpServlet{
         Mustache.compiler().
                 compile(new InputStreamReader(new FileInputStream("templates/calendar.html"))).
                 execute(new Object() {
-                    List<Episode> episodes = ofy().load().type(Episode.class).order("air_date").list(); // Just set the name for the mustache section.
+                    List<Episode> episodes = ofy().load().type(Episode.class).order("episode_number").list(); // Just set the name for the mustache section.
                 }, resp.getWriter());
     }
 
