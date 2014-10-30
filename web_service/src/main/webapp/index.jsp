@@ -14,6 +14,7 @@
     <ul>
         <li><a href="/news">News</a></li>
         <li><a href="/calendar">Calendar</a></li>
+        <li><a href="/watchlist">Watchlist</a></li>
     </ul>
 </body>
 </html>

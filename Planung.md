@@ -50,3 +50,4 @@ In der Android Client-Anwendung kann sich der Benutzer einloggen, woraufhin sein
 * TMDB (http://docs.themoviedb.apiary.io/)
 * Rotten Tomatoes (http://developer.rottentomatoes.com/)
 * Serienjunkies.de (http://www.serienjunkies.de/rss/serie/<serie>.xml RSS Parsen)
+* Netflix (http://developer.netflix.com/docs/read/REST_API_Reference)

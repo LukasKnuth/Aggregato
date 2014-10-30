@@ -65,6 +65,14 @@
         <servlet-name>calendar_test</servlet-name>
         <url-pattern>/calendar</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>watchlist_test</servlet-name>
+        <servlet-class>org.codeisland.aggregato.service.MyWatchlist</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>watchlist_test</servlet-name>
+        <url-pattern>/watchlist</url-pattern>
+    </servlet-mapping>
 
     <!-- The API Endpoint -->
     <servlet>
