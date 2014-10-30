@@ -58,6 +58,10 @@ public class Episode implements Mergeable<Episode>{
         return season_number;
     }
 
+    public Long getId() {
+        return key;
+    }
+
     @Override
     public void merge(Episode other) {
         // TODO What to do here, if we're not sure?? (Admin tool for review?)

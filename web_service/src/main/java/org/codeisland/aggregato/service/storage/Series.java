@@ -38,6 +38,10 @@ public class Series {
         return tmdb_id;
     }
 
+    public Long getId(){
+        return key;
+    }
+
     @Override
     public String toString() {
         return String.format("Series '%s' has %s seasons", name, season_count);

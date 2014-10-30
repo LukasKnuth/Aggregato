@@ -1,5 +1,6 @@
 package org.codeisland.aggregato.service.api;
 
+import com.google.api.server.spi.auth.common.User;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
@@ -42,14 +43,59 @@ public class SeriesAPI {
                 filter("name_normalized >=", name_normalized).
                 filter("name_normalized <", name_normalized+"\uFFFD").
                 list();
+        // TODO If nothing is found, add a task to crawl for the series!
     }
 
-    public List<Episode> listEpisodes(@Named("series") String series){
-        List<Series> shows = findSeries(series);
-        if (shows.size() > 0){
-            return ofy().load().type(Episode.class).filter("series", shows.get(0)).list();
+    public List<Episode> listEpisodes(@Named("series_id") Long series_id){
+        Series show = ofy().load().type(Series.class).id(series_id).now();
+        if (show != null){
+            return ofy().load().type(Episode.class).filter("series", show).list();
         } else {
             return Collections.emptyList();
         }
+    }
+
+    /*
+    ------------------ Watchlist -----------------
+     */
+
+    public void addToWatchlist(User user, @Named("episode_id") Long episode_id){
+        throw new RuntimeException("Not yet implemented!");
+    }
+
+    public void addSeriesToWatchlist(User user, @Named("series_id") Long series_id){
+        throw new RuntimeException("Not yet implemented!");
+    }
+
+    public void removeFromWatchlist(User user, @Named("episode_id") Long episode_id){
+        throw new RuntimeException("Not yet implemented!");
+    }
+
+    public List<Episode> getWatchlist(User user){
+        throw new RuntimeException("Not yet implemented!");
+    }
+
+    /*
+    ------------------ Subscriptions ---------------
+     */
+
+    public void addSubscription(User user, @Named("series_id") Long series_id){
+        throw new RuntimeException("Not yet implemented!");
+    }
+
+    public void cancelSubscription(User user, @Named("series_id") Long series_id){
+        throw new RuntimeException("Not yet implemented!");
+    }
+
+    public List<Series> getSubscriptions(User user){
+        throw new RuntimeException("Not yet implemented!");
+    }
+
+    /*
+    ----------------- News -----------------
+     */
+
+    public void getNews(@Named("series_id") Long series_id){
+        throw new RuntimeException("Not yet implemented!");
     }
 }
