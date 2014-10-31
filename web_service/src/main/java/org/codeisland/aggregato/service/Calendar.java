@@ -2,10 +2,8 @@ package org.codeisland.aggregato.service;
 
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
-import com.googlecode.objectify.ObjectifyService;
 import com.samskivert.mustache.Mustache;
 import org.codeisland.aggregato.service.storage.Episode;
-import org.codeisland.aggregato.service.storage.Series;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -17,18 +15,13 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
-import static com.googlecode.objectify.ObjectifyService.ofy;
+import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
 
 /**
  * @author Lukas Knuth
  * @version 1.0
  */
 public class Calendar extends HttpServlet{
-
-    static {
-        ObjectifyService.register(Episode.class);
-        ObjectifyService.register(Series.class);
-    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

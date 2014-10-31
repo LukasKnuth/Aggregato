@@ -4,14 +4,13 @@ import com.google.api.server.spi.auth.common.User;
 import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
-import com.googlecode.objectify.ObjectifyService;
 import org.codeisland.aggregato.service.storage.Episode;
 import org.codeisland.aggregato.service.storage.Series;
 
 import java.util.Collections;
 import java.util.List;
 
-import static com.googlecode.objectify.ObjectifyService.ofy;
+import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
 
 /**
  * This is the series specific portion of the backend api.
@@ -31,11 +30,6 @@ import static com.googlecode.objectify.ObjectifyService.ofy;
         audiences = { Constants.ANDROID_AUDIENCE }
 )
 public class SeriesAPI {
-
-    static {
-        ObjectifyService.register(Series.class);
-        ObjectifyService.register(Episode.class);
-    }
 
     public List<Series> findSeries(@Named("name") String name){
         String name_normalized = name.toUpperCase();

@@ -3,7 +3,6 @@ package org.codeisland.aggregato.service;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.googlecode.objectify.ObjectifyService;
 import com.samskivert.mustache.Mustache;
 import org.codeisland.aggregato.service.storage.Episode;
 import org.codeisland.aggregato.service.storage.Watchlist;
@@ -18,18 +17,13 @@ import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.List;
 
-import static com.googlecode.objectify.ObjectifyService.ofy;
+import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
 
 /**
  * @author Lukas Knuth
  * @version 1.0
  */
 public class MyWatchlist extends HttpServlet{
-
-    static {
-        ObjectifyService.register(Watchlist.class);
-        ObjectifyService.register(Episode.class);
-    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

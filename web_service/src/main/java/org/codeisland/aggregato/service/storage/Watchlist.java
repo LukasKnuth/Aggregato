@@ -15,9 +15,9 @@ import java.util.List;
 @Entity
 public class Watchlist {
 
-    @Id Long key;
-    @Index String user_id;
-    List<Episode> watchlist = new ArrayList<>();
+    private @Id Long key;
+    private @Index String user_id;
+    private List<Episode> watchlist = new ArrayList<>();
 
     public Watchlist(){} // Objectify needs this!
 

@@ -1,6 +1,5 @@
 package org.codeisland.aggregato.service.workers;
 
-import com.googlecode.objectify.ObjectifyService;
 import org.codeisland.aggregato.service.fetcher.SeriesFetcher;
 import org.codeisland.aggregato.service.fetcher.impl.TMDBFetcher;
 import org.codeisland.aggregato.service.storage.Episode;
@@ -14,18 +13,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.googlecode.objectify.ObjectifyService.ofy;
+import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
 
 /**
  * @author Lukas Knuth
  * @version 1.0
  */
 public class SeriesWorker extends HttpServlet {
-
-    static {
-        ObjectifyService.register(Series.class);
-        ObjectifyService.register(Episode.class);
-    }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

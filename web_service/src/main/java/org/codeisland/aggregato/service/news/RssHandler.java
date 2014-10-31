@@ -1,6 +1,5 @@
 package org.codeisland.aggregato.service.news;
 
-import com.googlecode.objectify.ObjectifyService;
 import org.codeisland.aggregato.service.storage.News;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -10,17 +9,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import static com.googlecode.objectify.ObjectifyService.ofy;
+import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
 
 /**
  * @author Lukas Knuth
  * @version 1.0
  */
 public class RssHandler extends DefaultHandler {
-
-    static {
-        ObjectifyService.register(News.class);
-    }
 
     private final SimpleDateFormat rfc882 = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
     private final String language;

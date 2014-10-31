@@ -2,7 +2,6 @@ package org.codeisland.aggregato.service;
 
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
-import com.googlecode.objectify.ObjectifyService;
 import com.samskivert.mustache.Mustache;
 
 import javax.servlet.ServletException;
@@ -15,17 +14,13 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
-import static com.googlecode.objectify.ObjectifyService.ofy;
+import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
 
 /**
  * @author Lukas Knuth
  * @version 1.0
  */
 public class News extends HttpServlet {
-
-    static {
-        ObjectifyService.register(org.codeisland.aggregato.service.storage.News.class);
-    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
