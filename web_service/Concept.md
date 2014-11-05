@@ -4,7 +4,7 @@
 
 ### Get Series/Episodes
 
-- [ ] If a series is not found in the database, schedule a crawl job for it 
+- [x] If a series is not found in the database, schedule a crawl job for it 
 
 ### Calendar/Watchlist
 
@@ -14,7 +14,7 @@
 >
 > *Subscription*: List of **Series** a user is interested in (notification for new episodes, news, etc)
 
-- [ ] Add user authentication
+- [x] Add user authentication
 - [ ] A series can be added/removed/listed to a users subscriptions
 - [ ] Put new Episodes on the users watchlist when they air
 - [ ] Users can manually add **episodes and series** on their watchlist (adding a series adds all episodes)

@@ -6,6 +6,7 @@ import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
 import org.codeisland.aggregato.service.storage.Episode;
 import org.codeisland.aggregato.service.storage.Series;
+import org.codeisland.aggregato.service.workers.QueueManager;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,11 +34,15 @@ public class SeriesAPI {
 
     public List<Series> findSeries(@Named("name") String name){
         String name_normalized = name.toUpperCase();
-        return ofy().load().type(Series.class).
+        List<Series> seriesList = ofy().load().type(Series.class).
                 filter("name_normalized >=", name_normalized).
-                filter("name_normalized <", name_normalized+"\uFFFD").
+                filter("name_normalized <", name_normalized + "\uFFFD").
                 list();
-        // TODO If nothing is found, add a task to crawl for the series!
+        if (seriesList.size() == 0){
+            // Not found, add a crawl-job:
+            QueueManager.queueSeries(name);
+        }
+        return seriesList;
     }
 
     public List<Episode> listEpisodes(@Named("series_id") Long series_id){
