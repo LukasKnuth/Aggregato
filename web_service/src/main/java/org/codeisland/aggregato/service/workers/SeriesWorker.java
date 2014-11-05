@@ -1,7 +1,7 @@
 package org.codeisland.aggregato.service.workers;
 
+import org.codeisland.aggregato.service.fetcher.FetchManager;
 import org.codeisland.aggregato.service.fetcher.SeriesFetcher;
-import org.codeisland.aggregato.service.fetcher.impl.TMDBFetcher;
 import org.codeisland.aggregato.service.storage.Episode;
 import org.codeisland.aggregato.service.storage.Series;
 
@@ -24,7 +24,7 @@ public class SeriesWorker extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String series_name = req.getParameter("series_name");
-        SeriesFetcher fetcher = new TMDBFetcher();
+        SeriesFetcher fetcher = FetchManager.INSTANCE;
 
         Series series = ofy().load().type(Series.class).
                 filter("name_normalized", series_name.toUpperCase()).first().now();

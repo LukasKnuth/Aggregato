@@ -9,7 +9,7 @@ import com.googlecode.objectify.annotation.Index;
  * @version 1.0
  */
 @Entity
-public class Series {
+public class Series implements Mergeable<Series>{
 
     @Id Long key;
     String name;
@@ -22,6 +22,13 @@ public class Series {
         this.name_normalized = name.toUpperCase();
         this.season_count = season_count;
         this.tmdb_id = tmdb_id;
+    }
+
+    @Override
+    public void merge(Series other) {
+        if (other.season_count > this.season_count){
+            this.season_count = other.season_count;
+        }
     }
 
     public Series() {} // Objectify needs this one!
