@@ -1,12 +1,16 @@
 package org.codeisland.aggregato.service.storage;
 
+import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
 import com.googlecode.objectify.annotation.Load;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * @author Lukas Knuth
@@ -15,8 +19,13 @@ import java.util.Date;
 @Entity
 public class Episode implements Mergeable<Episode>{
 
+    static {
+        ObjectifyService.register(Series.class); // We need this here, otherwise Ref.create throws an exception in the constructor!
+    }
+    private static final SimpleDateFormat AIR_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+
     private @Id Long key;
-    private @Index Date air_date;
+    private @Index String air_date;
     private @Index String title;
     private String description;
     private @Index int episode_number;
@@ -26,7 +35,7 @@ public class Episode implements Mergeable<Episode>{
     public Episode() {}
 
     public Episode(Series series, String title, int episode_number, int season_number, Date air_date, String description) {
-        this.air_date = air_date;
+        this.air_date = AIR_FORMAT.format(air_date);
         this.title = title;
         this.description = description;
         this.episode_number = episode_number;
@@ -35,7 +44,11 @@ public class Episode implements Mergeable<Episode>{
     }
 
     public Date getAirDate() {
-        return air_date;
+        try {
+            return AIR_FORMAT.parse(this.air_date);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String getTitle() {

@@ -39,6 +39,26 @@
         <url-pattern>/tasks/news_worker</url-pattern>
     </servlet-mapping>
 
+    <!-- Secure Cron-Jobs from external access -->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>jobs</web-resource-name>
+            <url-pattern>/jobs/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>admin</role-name>
+        </auth-constraint>
+    </security-constraint>
+
+    <servlet>
+        <servlet-name>subscriptions_job</servlet-name>
+        <servlet-class>org.codeisland.aggregato.service.cron.SubscriptionsJob</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>subscriptions_job</servlet-name>
+        <url-pattern>/jobs/subscriptions</url-pattern>
+    </servlet-mapping>
+
     <!-- Servlets -->
     <servlet>
         <servlet-name>news_test</servlet-name>
@@ -63,6 +83,14 @@
     <servlet-mapping>
         <servlet-name>watchlist_test</servlet-name>
         <url-pattern>/watchlist</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>subscriptions_test</servlet-name>
+        <servlet-class>org.codeisland.aggregato.service.MySubscriptions</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>subscriptions_test</servlet-name>
+        <url-pattern>/subscriptions</url-pattern>
     </servlet-mapping>
 
     <!-- The API Endpoint -->

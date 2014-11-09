@@ -15,6 +15,4 @@ public interface SeriesFetcher {
     public Series getSeries(String name);
 
     public List<Episode> getEpisodes(Series series);
-
-    // TODO need to distinguish between initial load and update!
 }

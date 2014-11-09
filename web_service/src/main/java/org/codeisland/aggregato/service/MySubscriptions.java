@@ -4,8 +4,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.samskivert.mustache.Mustache;
-import org.codeisland.aggregato.service.storage.Episode;
-import org.codeisland.aggregato.service.storage.Watchlist;
+import org.codeisland.aggregato.service.storage.Series;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -14,9 +13,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
 
@@ -24,7 +23,7 @@ import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
  * @author Lukas Knuth
  * @version 1.0
  */
-public class MyWatchlist extends HttpServlet{
+public class MySubscriptions extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -34,16 +33,17 @@ public class MyWatchlist extends HttpServlet{
         if (req.getUserPrincipal() != null){
             // User is logged in!
             final User currentUser = userService.getCurrentUser();
-            final Watchlist wlist = ofy().load().type(Watchlist.class).id(currentUser.getUserId()).now();
-            final List<Episode> episodeList = ofy().load().type(Episode.class).list();
+            final List<Series> userSubscriptions = ofy().load().type(Series.class).
+                    filter("subscribers", currentUser.getUserId()).list();
+            final List<Series> seriesList = ofy().load().type(Series.class).list();
 
             resp.setCharacterEncoding("UTF-8");
             Mustache.compiler().
-                    compile(new InputStreamReader(new FileInputStream("templates/watchlist.html"))).
+                    compile(new InputStreamReader(new FileInputStream("templates/subscriptions.html"))).
                     execute(new Object() {
-                        Set<Episode> watchlist = (wlist != null) ? wlist.getWatchlist() : Collections.<Episode>emptySet();
+                        List<Series> series = seriesList;
+                        List<Series> subscriptions = userSubscriptions;
                         String user = currentUser.getNickname();
-                        List<Episode> episodes = episodeList;
                         String logout_link = userService.createLogoutURL(thisUrl);
                     }, resp.getWriter());
         } else {
@@ -59,21 +59,19 @@ public class MyWatchlist extends HttpServlet{
             UserService userService = UserServiceFactory.getUserService();
             User currentUser = userService.getCurrentUser();
 
-            Watchlist watchlist = ofy().load().type(Watchlist.class).id(currentUser.getUserId()).now();
-            if (watchlist == null){
-                // No Watchlist yet:
-                watchlist = new Watchlist(currentUser);
+            String[] series_ids = req.getParameterValues("series");
+            List<Long> keys = new ArrayList<>(series_ids.length);
+            for (String s_id : series_ids){
+                keys.add(Long.parseLong(s_id));
             }
+            Collection<Series> series = ofy().load().type(Series.class).ids(keys).values();
 
-            String[] episodes = req.getParameterValues("episodes");
-            for (String ep : episodes){
-                Long episode_id = Long.parseLong(ep);
-                Episode episode = ofy().load().type(Episode.class).id(episode_id).now();
-                watchlist.addItem(episode);
+            for (Series s : series){
+                s.subscribe(currentUser);
             }
+            ofy().save().entities(series);
 
-            ofy().save().entities(watchlist);
-            resp.getWriter().println("Saved new episodes to watchlist");
+            resp.getWriter().println("Saved new series to subscriptions");
         } else {
             resp.getWriter().println("you're not logged in...");
         }
