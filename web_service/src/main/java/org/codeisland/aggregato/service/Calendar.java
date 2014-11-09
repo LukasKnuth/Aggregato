@@ -1,6 +1,7 @@
 package org.codeisland.aggregato.service;
 
 import com.samskivert.mustache.Mustache;
+import com.samskivert.mustache.Template;
 import org.codeisland.aggregato.service.storage.Episode;
 import org.codeisland.aggregato.service.workers.QueueManager;
 
@@ -21,15 +22,19 @@ import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
  */
 public class Calendar extends HttpServlet{
 
+    private Template template;
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding("UTF-8");
 
-        Mustache.compiler().
-                compile(new InputStreamReader(new FileInputStream("templates/calendar.html"))).
-                execute(new Object() {
-                    List<Episode> episodes = ofy().load().type(Episode.class).order("episode_number").list(); // Just set the name for the mustache section.
-                }, resp.getWriter());
+        if (template == null) {
+            template = Mustache.compiler().
+                    compile(new InputStreamReader(new FileInputStream("templates/calendar.html")));
+        }
+        template.execute(new Object() {
+            List<Episode> episodes = ofy().load().type(Episode.class).order("episode_number").list(); // Just set the name for the mustache section.
+        }, resp.getWriter());
     }
 
     @Override

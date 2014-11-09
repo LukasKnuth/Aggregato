@@ -1,6 +1,8 @@
 package org.codeisland.aggregato.service;
 
 import com.samskivert.mustache.Mustache;
+import com.samskivert.mustache.Template;
+import org.codeisland.aggregato.service.storage.News;
 import org.codeisland.aggregato.service.workers.QueueManager;
 
 import javax.servlet.ServletException;
@@ -18,17 +20,21 @@ import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
  * @author Lukas Knuth
  * @version 1.0
  */
-public class News extends HttpServlet {
+public class MyNews extends HttpServlet {
+
+    private Template template;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setCharacterEncoding("UTF-8");
 
-        Mustache.compiler().
-                compile(new InputStreamReader(new FileInputStream("templates/news.html"))).
-                execute(new Object() {
-                    List<org.codeisland.aggregato.service.storage.News> news = ofy().load().type(org.codeisland.aggregato.service.storage.News.class).list(); // Just set the name for the mustache section.
-                }, resp.getWriter());
+        if (template == null){
+            template = Mustache.compiler().
+                    compile(new InputStreamReader(new FileInputStream("templates/news.html")));
+        }
+        template.execute(new Object() {
+            List<News> news = ofy().load().type(News.class).list(); // Just set the name for the mustache section.
+        }, resp.getWriter());
 
     }
 

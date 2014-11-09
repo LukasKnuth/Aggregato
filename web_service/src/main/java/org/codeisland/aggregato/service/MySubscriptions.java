@@ -4,6 +4,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.samskivert.mustache.Mustache;
+import com.samskivert.mustache.Template;
 import org.codeisland.aggregato.service.storage.Series;
 
 import javax.servlet.ServletException;
@@ -25,6 +26,8 @@ import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
  */
 public class MySubscriptions extends HttpServlet {
 
+    private Template template;
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final UserService userService = UserServiceFactory.getUserService();
@@ -38,14 +41,16 @@ public class MySubscriptions extends HttpServlet {
             final List<Series> seriesList = ofy().load().type(Series.class).list();
 
             resp.setCharacterEncoding("UTF-8");
-            Mustache.compiler().
-                    compile(new InputStreamReader(new FileInputStream("templates/subscriptions.html"))).
-                    execute(new Object() {
-                        List<Series> series = seriesList;
-                        List<Series> subscriptions = userSubscriptions;
-                        String user = currentUser.getNickname();
-                        String logout_link = userService.createLogoutURL(thisUrl);
-                    }, resp.getWriter());
+            if (template == null){
+                template = Mustache.compiler().
+                        compile(new InputStreamReader(new FileInputStream("templates/subscriptions.html")));
+            }
+            template.execute(new Object() {
+                List<Series> series = seriesList;
+                List<Series> subscriptions = userSubscriptions;
+                String user = currentUser.getNickname();
+                String logout_link = userService.createLogoutURL(thisUrl);
+            }, resp.getWriter());
         } else {
             // User is not logged in!
             resp.getWriter().format("<a href='%s'>Login first!</a>", userService.createLoginURL(thisUrl));

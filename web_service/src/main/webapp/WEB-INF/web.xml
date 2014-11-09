@@ -62,7 +62,7 @@
     <!-- Servlets -->
     <servlet>
         <servlet-name>news_test</servlet-name>
-        <servlet-class>org.codeisland.aggregato.service.News</servlet-class>
+        <servlet-class>org.codeisland.aggregato.service.MyNews</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>news_test</servlet-name>
