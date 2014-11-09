@@ -22,6 +22,7 @@ public class Series implements Mergeable<Series>{
     String tmdb_id; // TODO Store ID's somewhere seperate??
     @Index List<String> subscribers = new ArrayList<>(); // List of user-ID's
 
+    private Series() {} // Objectify needs this one!
     public Series(String name, int season_count, String tmdb_id) {
         this.name = name;
         this.name_normalized = name.toUpperCase();
@@ -47,8 +48,6 @@ public class Series implements Mergeable<Series>{
     public List<String> getSubscribers() {
         return subscribers;
     }
-
-    public Series() {} // Objectify needs this one!
 
     public String getName() {
         return name;

@@ -20,7 +20,7 @@ public class News {
     private @Index Date pubDate;
     private @Index String language;
 
-    public News(){} // For Objectify
+    private News(){} // For Objectify
     public News(String language) {
         this.language = language;
     }

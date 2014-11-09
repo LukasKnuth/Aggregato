@@ -32,7 +32,7 @@ public class Episode implements Mergeable<Episode>{
     private int season_number;
     private @Index @Load Ref<Series> series; // Loads along with this episode
 
-    public Episode() {}
+    private Episode() {} // Objectify needs this, visibility doesn't madder
 
     public Episode(Series series, String title, int episode_number, int season_number, Date air_date, String description) {
         this.air_date = AIR_FORMAT.format(air_date);
