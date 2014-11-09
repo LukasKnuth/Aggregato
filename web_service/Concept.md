@@ -17,7 +17,7 @@
 - [x] Add user authentication
 - [x] A series can be added/removed/listed to a users subscriptions
 - [x] Put new Episodes on the users watchlist when they air
-- [ ] Users can manually add **episodes and series** on their watchlist (adding a series adds all episodes)
+- [x] Users can manually add **episodes and series** on their watchlist (adding a series adds all episodes)
 
 ### News
 
