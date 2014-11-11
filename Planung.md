@@ -14,6 +14,12 @@ Auf dem Webservice werden ebenfalls die Account-Daten der Benutzer gespeichert, 
 
 In der Android Client-Anwendung kann sich der Benutzer einloggen, woraufhin seine Daten vom Webservice auf der Gerät geladen und dort bearbeitet bzw. angezeigt werden können.
 
+# Dokumentation
+
+Es muss nur Dokumentation für den Android client erstellt werden!
+
+Dies beinhaltet JavaDoc für alle Klassen und ein Klassendiagramm um den Zusammenhang der Klassen dar zu stellen.
+
 # Implementation
 
 ## Web Service
