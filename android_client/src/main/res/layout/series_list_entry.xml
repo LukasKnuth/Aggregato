@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="10dp"
+        >
+
+    <TextView android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:id="@+id/series_list_entry_title"
+              android:textSize="24dp"
+              android:text="sample"
+            />
+
+    <TextView android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:id="@+id/series_list_entry_seasons"
+              android:textSize="16dp"
+              android:layout_marginLeft="10dp"
+              android:text="sample"
+
+            />
+
+</LinearLayout>

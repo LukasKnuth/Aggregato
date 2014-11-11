@@ -4,12 +4,12 @@ import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.json.gson.GsonFactory;
+import org.codeisland.aggregato.client.adapter.SeriesAdapter;
 import org.codeisland.aggregato.tvseries.tvseries.Tvseries;
 import org.codeisland.aggregato.tvseries.tvseries.model.Series;
 
@@ -64,9 +64,9 @@ public class Landing extends Activity {
         @Override
         protected void onPostExecute(List<Series> serieses) {
             if (serieses != null){
-                series_list.setAdapter(
-                        new ArrayAdapter<Series>(Landing.this, android.R.layout.simple_list_item_1, serieses)
-                );
+                SeriesAdapter adapter = new SeriesAdapter(Landing.this);
+                adapter.addAll(serieses);
+                series_list.setAdapter(adapter);
             }
         }
     }

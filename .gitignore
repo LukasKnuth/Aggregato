@@ -1,5 +1,8 @@
 # Created by https://www.gitignore.io
 
+## App Engine ##
+web_service/target/
+
 ### Intellij ###
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
 
