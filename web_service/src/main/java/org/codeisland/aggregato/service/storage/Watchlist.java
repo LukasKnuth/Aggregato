@@ -1,9 +1,11 @@
 package org.codeisland.aggregato.service.storage;
 
 import com.google.appengine.api.users.User;
+import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
+import com.googlecode.objectify.annotation.Load;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -20,7 +22,7 @@ import java.util.Set;
 public class Watchlist {
 
     private @Id @Index String user_id;
-    private Set<Episode> watchlist = new HashSet<>();
+    private @Load Set<Ref<Episode>> watchlist = new HashSet<>();
 
     private Watchlist(){} // Objectify needs this, protection doesn't madder!
     public Watchlist(User user){
@@ -31,7 +33,11 @@ public class Watchlist {
     }
 
     public Set<Episode> getWatchlist() {
-        return watchlist;
+        Set<Episode> episodes = new HashSet<>(); // TODO Cache this??
+        for (Ref<Episode> eRef : watchlist){
+            episodes.add(eRef.get());
+        }
+        return episodes;
     }
 
     /**
@@ -39,7 +45,7 @@ public class Watchlist {
      */
     public void addItem(Episode episode){
         // TODO Store if this was added manually or automatically (for display-order on devices) ??
-        this.watchlist.add(episode);
+        this.watchlist.add(Ref.create(episode));
     }
 
     /**
@@ -47,6 +53,6 @@ public class Watchlist {
      *  the call is ignored.
      */
     public void removeItem(Episode episode){
-        this.watchlist.remove(episode);
+        this.watchlist.remove(Ref.create(episode));
     }
 }
