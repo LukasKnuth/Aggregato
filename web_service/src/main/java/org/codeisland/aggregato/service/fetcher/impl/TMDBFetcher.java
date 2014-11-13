@@ -102,6 +102,7 @@ public class TMDBFetcher implements SeriesFetcher {
     public List<Episode> getEpisodes(Series series) {
         List<Episode> all_episodes = new ArrayList<>();
         try {
+            // Start with season 1, since 0 is usually the specials...
             for (int season_nr = 1; season_nr <= series.getSeasons(); season_nr++){
                 URL url = new URL(String.format(
                         BASE_URL+API_VERSION+"/tv/%s/season/%s?api_key="+API_KEY, series.getTmdbId(), season_nr
@@ -112,22 +113,24 @@ public class TMDBFetcher implements SeriesFetcher {
                 }
 
                 JSONObject season = (JSONObject) json;
-                JSONArray episodes = season.getJSONArray("episodes");
-                for (int i = 0; i < episodes.length(); i++){
-                    JSONObject episode = episodes.getJSONObject(i);
+                if (season.has("episodes")){
+                    JSONArray episodes = season.getJSONArray("episodes");
+                    for (int i = 0; i < episodes.length(); i++){
+                        JSONObject episode = episodes.getJSONObject(i);
 
-                    Date air_date = null;
-                    try {
-                        air_date = DATE_FORMAT.parse(episode.getString("air_date"));
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+                        Date air_date = null;
+                        try {
+                            air_date = DATE_FORMAT.parse(episode.getString("air_date"));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+
+                        all_episodes.add(new Episode(
+                                series, episode.getString("name"),
+                                episode.getInt("episode_number"), episode.getInt("season_number"),
+                                air_date, episode.getString("overview")
+                        ));
                     }
-
-                    all_episodes.add(new Episode(
-                            series, episode.getString("name"),
-                            episode.getInt("episode_number"), episode.getInt("season_number"),
-                            air_date, episode.getString("overview")
-                    ));
                 }
             }
         } catch (IOException e) {

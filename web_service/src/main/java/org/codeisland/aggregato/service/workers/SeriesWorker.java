@@ -31,6 +31,7 @@ public class SeriesWorker extends HttpServlet {
         if (series == null){
             // Not yet in the Database, find it!
             series = fetcher.getSeries(series_name);
+            // TODO Check if Series was found!
             ofy().save().entities(series).now();
         }
         // Series is there, load the episodes:

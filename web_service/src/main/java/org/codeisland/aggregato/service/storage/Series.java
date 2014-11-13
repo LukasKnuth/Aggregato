@@ -19,7 +19,7 @@ public class Series implements Mergeable<Series>{
     String name;
     @Index String name_normalized; // We need this for case-insensitive filtering
     @Index int season_count; // need index for ordering!
-    String tmdb_id; // TODO Store ID's somewhere seperate??
+    String tmdb_id; // TODO Store ID's somewhere seperate?? HashMap for IDs/NewsURL, etz??
     @Index List<String> subscribers = new ArrayList<>(); // List of user-ID's
 
     private Series() {} // Objectify needs this one!
