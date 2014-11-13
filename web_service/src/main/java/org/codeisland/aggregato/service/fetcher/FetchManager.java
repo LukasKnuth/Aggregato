@@ -1,12 +1,12 @@
 package org.codeisland.aggregato.service.fetcher;
 
+import org.codeisland.aggregato.service.fetcher.impl.SerienjunkiesFetcher;
 import org.codeisland.aggregato.service.fetcher.impl.TMDBFetcher;
 import org.codeisland.aggregato.service.storage.Episode;
+import org.codeisland.aggregato.service.storage.News;
 import org.codeisland.aggregato.service.storage.Series;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * <p>This manager automates the process of fetching information from all available
@@ -16,15 +16,19 @@ import java.util.List;
  * @author Lukas Knuth
  * @version 1.0
  */
-public enum FetchManager implements SeriesFetcher{
+public enum FetchManager implements SeriesFetcher, NewsFetcher{
 
     INSTANCE;
 
     private List<SeriesFetcher> seriesFetchers = new LinkedList<>();
+    private List<NewsFetcher> newsFetchers = new LinkedList<>();
 
     private FetchManager(){
         seriesFetchers.add(new TMDBFetcher());
+
+        newsFetchers.add(new SerienjunkiesFetcher());
     }
+
 
 
     @Override
@@ -57,6 +61,15 @@ public enum FetchManager implements SeriesFetcher{
                     collected.get(i).merge(e);
                 }
             }
+        }
+        return collected;
+    }
+
+    @Override
+    public Set<News> getNews(Series series) {
+        Set<News> collected = new HashSet<>();
+        for (NewsFetcher fetcher : this.newsFetchers){
+            collected.addAll(fetcher.getNews(series));
         }
         return collected;
     }
