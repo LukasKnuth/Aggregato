@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
 
@@ -30,7 +31,8 @@ public class NewsWorker extends HttpServlet{
 
                 ofy().save().entities(news);
             } else {
-                // TODO Series was not found...
+                Logger logger = Logger.getLogger(this.getClass().getName());
+                logger.warning(String.format("Series '%s' was not found in our database!", series_name));
             }
         }
         // All done:

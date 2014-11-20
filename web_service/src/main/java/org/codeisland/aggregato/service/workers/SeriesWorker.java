@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
 
@@ -31,8 +32,12 @@ public class SeriesWorker extends HttpServlet {
         if (series == null){
             // Not yet in the Database, find it!
             series = fetcher.getSeries(series_name);
-            // TODO Check if Series was found!
-            ofy().save().entities(series).now();
+            if (series != null) {
+                ofy().save().entities(series).now();
+            } else {
+                Logger logger = Logger.getLogger(this.getClass().getName());
+                logger.warning(String.format("Series '%s' not found in ANY database!", series_name));
+            }
         }
         // Series is there, load the episodes:
         List<Episode> fetched_episodes = fetcher.getEpisodes(series);
