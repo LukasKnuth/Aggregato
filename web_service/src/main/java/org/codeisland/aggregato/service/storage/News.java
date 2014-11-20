@@ -18,8 +18,8 @@ public class News {
     private @Id String link;
     private String description;
     private @Index Date pubDate;
-    private @Index String language;
-    private Ref<Series> series;
+    private String language;
+    private @Index Ref<Series> series;
 
     /**
      * <p>Creates a new {@code News}-object with the given properties.</p>

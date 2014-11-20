@@ -21,7 +21,7 @@
 
 ### News
 
-- [ ] Get news to a given Series (filter this by date? add limit?)
+- [x] Get news to a given Series (filter this by date? add limit?)
 
 ## Automatic Updating
 

@@ -6,6 +6,7 @@ import com.google.api.server.spi.config.Named;
 import com.google.appengine.api.oauth.OAuthRequestException;
 import com.google.appengine.api.users.User;
 import org.codeisland.aggregato.service.storage.Episode;
+import org.codeisland.aggregato.service.storage.News;
 import org.codeisland.aggregato.service.storage.Series;
 import org.codeisland.aggregato.service.storage.Watchlist;
 import org.codeisland.aggregato.service.workers.QueueManager;
@@ -156,7 +157,11 @@ public class SeriesAPI {
     ----------------- News -----------------
      */
 
-    public void getNews(@Named("series_id") Long series_id){
-        throw new RuntimeException("Not yet implemented!");
+    public List<News> getNews(@Named("series_id") Long series_id){
+        Series series = ofy().load().type(Series.class).id(series_id).now();
+        List<News> news = ofy().load().type(News.class).
+                filter("series", series).order("pubDate").limit(20).
+                list();
+        return news;
     }
 }
