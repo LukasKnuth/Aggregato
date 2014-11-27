@@ -1,5 +1,7 @@
 package org.codeisland.aggregato.service.storage;
 
+import com.google.api.server.spi.config.AnnotationBoolean;
+import com.google.api.server.spi.config.ApiResourceProperty;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.Entity;
@@ -20,7 +22,9 @@ import java.util.Locale;
 public class Episode implements Mergeable<Episode>{
 
     static {
-        ObjectifyService.register(Series.class); // We need this here, otherwise Ref.create throws an exception in the constructor!
+        // We need this here explicitly, otherwise Ref.create throws an exception in the constructor if
+        // ObjectifyProxy hasn't been used yet!
+        ObjectifyService.register(Series.class);
     }
     private static final SimpleDateFormat AIR_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 
@@ -30,10 +34,11 @@ public class Episode implements Mergeable<Episode>{
     private String description;
     private @Index int episode_number;
     private int season_number;
+
+    @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
     private @Index @Load Ref<Series> series; // Loads along with this episode
 
     private Episode() {} // Objectify needs this, visibility doesn't madder
-
     public Episode(Series series, String title, int episode_number, int season_number, Date air_date, String description) {
         this.air_date = AIR_FORMAT.format(air_date);
         this.title = title;
@@ -91,7 +96,7 @@ public class Episode implements Mergeable<Episode>{
     @Override
     public String toString() {
         return String.format("%s aired on %s as episode %s of season %s",
-                this.title, this.air_date.toString(), this.episode_number, this.season_number
+                this.title, this.air_date, this.episode_number, this.season_number
         );
     }
 

@@ -23,11 +23,15 @@ import java.util.List;
  */
 public class TMDBFetcher implements SeriesFetcher {
 
+    // TODO Add a ConnectionPool or keep connections alive, so we don't have to open one for every request.
+
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
     private static final String BASE_URL = "http://api.themoviedb.org/";
     private static final String API_KEY = "f3737c9013174480c625c67f4d84d741";
     private static final String API_VERSION = "3";
+
+    private static final String IDENTIFIER_KEY = "TMDB";
 
     /**
      * <p>Load a json object from the given {@code URL}.</p>
@@ -51,10 +55,13 @@ public class TMDBFetcher implements SeriesFetcher {
     public Series getSeries(String name){
         List<Integer> ids = findSeries(name);
         String series_id = String.valueOf(ids.get(0)); // TODO How do we decide here?
+        return getSeriesForId(series_id);
+    }
 
+    private Series getSeriesForId(String tmdb_id){
         try {
             URL url = new URL(String.format(
-                    BASE_URL+API_VERSION+"/tv/%s?api_key="+API_KEY, series_id
+                    BASE_URL+API_VERSION+"/tv/%s?api_key="+API_KEY, tmdb_id
             ));
             Object json = jsonFromUrl(url);
             if (json instanceof JSONArray){
@@ -63,11 +70,14 @@ public class TMDBFetcher implements SeriesFetcher {
 
             JSONObject series = (JSONObject) json;
 
-            return new Series(
-                    series.getString("name"), series.getInt("number_of_seasons"), series_id
-            );
+            Date first_air_date = DATE_FORMAT.parse(series.getString("first_air_date"));
+            Series s = new Series(series.getString("name"), series.getInt("number_of_seasons"), first_air_date);
+            s.putIdentifier(IDENTIFIER_KEY, tmdb_id);
+            return s;
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException("Could not parse the first_air_date to a Date...", e);
         }
     }
 
@@ -103,9 +113,11 @@ public class TMDBFetcher implements SeriesFetcher {
         List<Episode> all_episodes = new ArrayList<>();
         try {
             // Start with season 1, since 0 is usually the specials...
-            for (int season_nr = 1; season_nr <= series.getSeasons(); season_nr++){
+            for (int season_nr = 1; season_nr <= series.getSeasonCount(); season_nr++){
+                // TODO If we have no identifier, search for the series name instead!
+                String tmdb_id = series.optIdentifier(IDENTIFIER_KEY, null);
                 URL url = new URL(String.format(
-                        BASE_URL+API_VERSION+"/tv/%s/season/%s?api_key="+API_KEY, series.getTmdbId(), season_nr
+                        BASE_URL+API_VERSION+"/tv/%s/season/%s?api_key="+API_KEY, tmdb_id, season_nr
                 ));
                 Object json = jsonFromUrl(url);
                 if (json instanceof JSONArray){
@@ -118,12 +130,7 @@ public class TMDBFetcher implements SeriesFetcher {
                     for (int i = 0; i < episodes.length(); i++){
                         JSONObject episode = episodes.getJSONObject(i);
 
-                        Date air_date = null;
-                        try {
-                            air_date = DATE_FORMAT.parse(episode.getString("air_date"));
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
+                        Date air_date = DATE_FORMAT.parse(episode.getString("air_date"));
 
                         all_episodes.add(new Episode(
                                 series, episode.getString("name"),
@@ -135,6 +142,8 @@ public class TMDBFetcher implements SeriesFetcher {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (ParseException e) {
+            throw new RuntimeException("Could not parse season or episode air_date", e);
         }
         return all_episodes;
     }
