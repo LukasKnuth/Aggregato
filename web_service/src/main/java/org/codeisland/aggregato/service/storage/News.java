@@ -1,6 +1,7 @@
 package org.codeisland.aggregato.service.storage;
 
 import com.googlecode.objectify.Ref;
+import com.googlecode.objectify.annotation.Cache;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
@@ -12,6 +13,7 @@ import java.util.Date;
  * @version 1.0
  */
 @Entity
+@Cache
 public class News {
 
     private String title;

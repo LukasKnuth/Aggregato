@@ -2,10 +2,7 @@ package org.codeisland.aggregato.service.storage;
 
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.Ref;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Index;
-import com.googlecode.objectify.annotation.Load;
+import com.googlecode.objectify.annotation.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,6 +16,7 @@ import java.util.Set;
  * @version 1.0
  */
 @Entity
+@Cache
 public class Watchlist {
 
     private @Id @Index String user_id;
