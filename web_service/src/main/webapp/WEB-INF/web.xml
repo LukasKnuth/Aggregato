@@ -58,6 +58,14 @@
         <servlet-name>subscriptions_job</servlet-name>
         <url-pattern>/jobs/subscriptions</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>series_update_job</servlet-name>
+        <servlet-class>org.codeisland.aggregato.service.cron.SeriesUpdateJob</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>series_update_job</servlet-name>
+        <url-pattern>/jobs/series_update</url-pattern>
+    </servlet-mapping>
 
     <!-- Servlets -->
     <servlet>

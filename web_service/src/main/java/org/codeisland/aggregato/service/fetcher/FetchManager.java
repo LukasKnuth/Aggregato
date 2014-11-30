@@ -29,7 +29,16 @@ public enum FetchManager implements SeriesFetcher, NewsFetcher{
         newsFetchers.add(new SerienjunkiesFetcher());
     }
 
-
+    @Override
+    public boolean update(Series series) {
+        boolean was_modified = false;
+        for (SeriesFetcher fetcher : this.seriesFetchers) {
+            if (fetcher.update(series)){
+                was_modified = true;
+            }
+        }
+        return was_modified;
+    }
 
     @Override
     public Series getSeries(String name) {

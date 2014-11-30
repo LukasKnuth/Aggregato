@@ -15,9 +15,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Lukas Knuth
@@ -167,5 +165,143 @@ public class TMDBFetcher implements SeriesFetcher {
             throw new RuntimeException("Could not parse season or episode air_date", e);
         }
         return all_seasons;
+    }
+
+    @Override
+    public boolean update(Series series) {
+        int series_tmdb_id = getTmdbId(series);
+        Series newest = getSeriesForId(series_tmdb_id);
+        boolean was_modified = series.merge(newest);
+
+        Map<Integer, Season> changedSeasons = getChangedSeasons(series);
+        if (!changedSeasons.isEmpty()){
+            for (Map.Entry<Integer, Season> season : changedSeasons.entrySet()) {
+                series.putSeason(season.getValue());
+                // Now, check the episodes:
+                List<Episode> changed_episodes = getChangedEpisodes(season.getValue(), season.getKey(), series_tmdb_id);
+                for (Episode episode : changed_episodes) {
+                    season.getValue().putEpisode(episode);
+                }
+            }
+            was_modified = true;
+        }
+        return was_modified;
+    }
+
+    /**
+     * Get information on any season-level changes for the Series TMDB-ID.
+     */
+    private static Map<Integer, Season> getChangedSeasons(Series series){
+        Map<Integer, Season> changed_seasons = new HashMap<>();
+        try {
+            URL url = new URL(String.format(BASE_URL + API_VERSION + "/tv/%s/changes?api_key=" + API_KEY, getTmdbId(series)));
+            Object resp = jsonFromUrl(url);
+            if (resp instanceof JSONArray) {
+                throw new RuntimeException("Expected a JSON Object, got an array...");
+            }
+            JSONObject json = (JSONObject) resp;
+
+            JSONArray changes = json.getJSONArray("changes");
+            for (int i = 0; i < changes.length(); i++) {
+                JSONObject change = changes.getJSONObject(i);
+
+                if (change.getString("key").equals("season")) {
+                    // Something changed in a particular season
+                    JSONArray items = change.getJSONArray("items");
+
+                    for (int j = 0; j < items.length(); j++) {
+                        JSONObject season_change = items.getJSONObject(j).getJSONObject("value");
+                        changed_seasons.put(
+                                season_change.getInt("season_id"),
+                                getSeason(series, season_change.getInt("season_number"))
+                        );
+                    }
+
+                }
+            }
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        return changed_seasons;
+    }
+
+    private static List<Episode> getChangedEpisodes(Season season, int season_tmdb_id, int series_tmdb_id){
+        List<Episode> changed_episodes = new ArrayList<>();
+        try {
+            URL url = new URL(String.format(
+                    String.format(BASE_URL + API_VERSION + "/tv/season/%s/changes?api_key=" + API_KEY, season_tmdb_id)
+            ));
+            Object json = jsonFromUrl(url);
+            if (!(json instanceof JSONObject)){
+                throw new RuntimeException("Expected a JSON Object...");
+            }
+            JSONArray changes = ((JSONObject) json).getJSONArray("changes");
+            JSONObject change;
+            for (int i = 0; i < changes.length(); i++){
+                change = changes.getJSONObject(i);
+                if (change.getString("key").equals("episode")){
+                    // Episodes changed:
+                    JSONArray items = change.getJSONArray("items");
+                    for (int j = 0; j < items.length(); j++){
+                        JSONObject episode_value = items.getJSONObject(j).getJSONObject("value");
+                        Episode episode = getEpisode(
+                                series_tmdb_id, season, episode_value.getInt("episode_number")
+                        );
+                        changed_episodes.add(episode);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return changed_episodes;
+    }
+
+    private static Season getSeason(Series series, int season_nr){
+        int series_tmdb_id = getTmdbId(series);
+        try {
+            URL url = new URL(String.format(
+                    String.format(BASE_URL + API_VERSION + "/tv/%s/season/%s?api_key=" + API_KEY, series_tmdb_id, season_nr)
+            ));
+            Object json = jsonFromUrl(url);
+            if (!(json instanceof JSONObject)){
+                throw new RuntimeException("Expected a JSON Object...");
+            }
+            JSONObject season = (JSONObject) json;
+
+            Date season_air_date = DATE_FORMAT.parse(season.getString("air_date"));
+            return new Season(
+                    series, season.getString("name"), season.getInt("season_number"), season_air_date
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException("Couldn't parse Season air_date", e);
+        }
+    }
+
+    private static Episode getEpisode(int series_tmdb_id, Season season, int episode_nr){
+        try {
+            URL url = new URL(String.format(
+                    String.format(BASE_URL + API_VERSION + "/tv/%s/season/%s/episode/%s?api_key=" + API_KEY,
+                            series_tmdb_id, season.getSeasonNr(), episode_nr
+                    )
+            ));
+            Object json = jsonFromUrl(url);
+            if (!(json instanceof JSONObject)){
+                throw new RuntimeException("Expected a JSON Object...");
+            }
+            JSONObject episode = (JSONObject) json;
+
+            Date air_date = DATE_FORMAT.parse(episode.getString("air_date"));
+            return new Episode(
+                    season, episode.getString("name"), episode_nr, season.getSeasonNr(),
+                    air_date, episode.getString("overview")
+            );
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException("Couldn't parse Season air_date", e);
+        }
     }
 }

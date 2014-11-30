@@ -5,4 +5,9 @@
         <description>Add new Episodes to the subscribers watchlist</description>
         <schedule>every 6 hours</schedule>
     </cron>
+    <cron>
+        <url>/jobs/series_update</url>
+        <description>Get changes from the series databases and pull in new information</description>
+        <schedule>every 12 hours</schedule>
+    </cron>
 </cronentries>

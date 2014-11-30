@@ -15,4 +15,10 @@ public interface SeriesFetcher {
     public Series getSeries(String name);
 
     public List<Season> getSeasons(Series series);
+
+    /**
+     * Get new information about the series, it's seasons and episodes, and merge it into the given series.
+     * @return whether the update changed anything in this series.
+     */
+    public boolean update(Series series);
 }
