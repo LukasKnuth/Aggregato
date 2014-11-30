@@ -2,8 +2,8 @@ package org.codeisland.aggregato.service.fetcher;
 
 import org.codeisland.aggregato.service.fetcher.impl.SerienjunkiesFetcher;
 import org.codeisland.aggregato.service.fetcher.impl.TMDBFetcher;
-import org.codeisland.aggregato.service.storage.Episode;
 import org.codeisland.aggregato.service.storage.News;
+import org.codeisland.aggregato.service.storage.Season;
 import org.codeisland.aggregato.service.storage.Series;
 
 import java.util.*;
@@ -45,20 +45,20 @@ public enum FetchManager implements SeriesFetcher, NewsFetcher{
     }
 
     @Override
-    public List<Episode> getEpisodes(Series series) {
-        List<Episode> collected = new ArrayList<>();
+    public List<Season> getSeasons(Series series) {
+        List<Season> collected = new ArrayList<>();
         for (SeriesFetcher fetcher : this.seriesFetchers){
-            List<Episode> fetchedEpisodes = fetcher.getEpisodes(series);
-            // Merge the episodes we already have into the ones we need
+            List<Season> fetchedSeasons = fetcher.getSeasons(series);
+            // Merge the seasons we already have into the ones we need
             int i;
-            for (Episode e : fetchedEpisodes){
-                i = collected.indexOf(e);
+            for (Season s : fetchedSeasons){
+                i = collected.indexOf(s);
                 if (i == -1){
-                    // Episode is not in the list:
-                    collected.add(e);
+                    // Season is not in the list:
+                    collected.add(s);
                 } else {
-                    // Episode already in the list:
-                    collected.get(i).merge(e);
+                    // Season already in the list:
+                    collected.get(i).merge(s);
                 }
             }
         }

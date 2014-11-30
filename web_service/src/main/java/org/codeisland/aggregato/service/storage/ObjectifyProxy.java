@@ -20,6 +20,7 @@ public class ObjectifyProxy {
         factory().register(Episode.class);
         factory().register(News.class);
         factory().register(Watchlist.class);
+        factory().register(Season.class);
     }
 
     public static Objectify ofy(){

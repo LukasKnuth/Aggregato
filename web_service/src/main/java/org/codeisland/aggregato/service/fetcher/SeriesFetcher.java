@@ -1,6 +1,6 @@
 package org.codeisland.aggregato.service.fetcher;
 
-import org.codeisland.aggregato.service.storage.Episode;
+import org.codeisland.aggregato.service.storage.Season;
 import org.codeisland.aggregato.service.storage.Series;
 
 import java.util.List;
@@ -14,5 +14,5 @@ public interface SeriesFetcher {
 
     public Series getSeries(String name);
 
-    public List<Episode> getEpisodes(Series series);
+    public List<Season> getSeasons(Series series);
 }

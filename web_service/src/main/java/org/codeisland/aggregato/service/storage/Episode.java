@@ -4,10 +4,7 @@ import com.google.api.server.spi.config.AnnotationBoolean;
 import com.google.api.server.spi.config.ApiResourceProperty;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Ref;
-import com.googlecode.objectify.annotation.Entity;
-import com.googlecode.objectify.annotation.Id;
-import com.googlecode.objectify.annotation.Index;
-import com.googlecode.objectify.annotation.Load;
+import com.googlecode.objectify.annotation.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,6 +16,7 @@ import java.util.Locale;
  * @version 1.0
  */
 @Entity
+@Cache
 public class Episode implements Mergeable<Episode>{
 
     static {
@@ -28,7 +26,7 @@ public class Episode implements Mergeable<Episode>{
     }
     private static final SimpleDateFormat AIR_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 
-    private @Id Long key;
+    private @Id String key;
     private @Index String air_date;
     private @Index String title;
     private String description;
@@ -36,16 +34,17 @@ public class Episode implements Mergeable<Episode>{
     private int season_number;
 
     @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
-    private @Index @Load Ref<Series> series; // Loads along with this episode
+    private @Load Ref<Season> season;
 
     private Episode() {} // Objectify needs this, visibility doesn't madder
-    public Episode(Series series, String title, int episode_number, int season_number, Date air_date, String description) {
+    public Episode(Season season, String title, int episode_number, int season_number, Date air_date, String description) {
         this.air_date = AIR_FORMAT.format(air_date);
-        this.title = title;
+        this.key = season.getId()+"e"+episode_number;
+        this.title = (title.isEmpty()) ? String.format("s%se%s", season_number, episode_number) : title;
         this.description = description;
         this.episode_number = episode_number;
         this.season_number = season_number;
-        this.series = Ref.create(series);
+        this.season = Ref.create(season);
     }
 
     public Date getAirDate() {
@@ -61,7 +60,11 @@ public class Episode implements Mergeable<Episode>{
     }
 
     public Series getSeries(){
-        return series.get();
+        return season.get().getSeries();
+    }
+
+    public Season getSeason(){
+        return season.get();
     }
 
     public String getDescription() {
@@ -76,21 +79,29 @@ public class Episode implements Mergeable<Episode>{
         return season_number;
     }
 
-    public Long getId() {
+    public String getId() {
         return key;
     }
 
     @Override
-    public void merge(Episode other) {
+    public boolean merge(Episode other) {
+        boolean was_modified = false;
         // TODO What to do here, if we're not sure?? (Admin tool for review?)
         if (other.air_date != null && this.air_date == null){
             this.air_date = other.air_date;
+            was_modified = true;
         }
         if (other.description != null){
             if (this.description == null || this.description.isEmpty()){
                 this.description = other.description;
+                was_modified = true;
             }
         }
+        if (!this.title.equals(other.title)){
+            this.title = other.title;
+            was_modified = true;
+        }
+        return was_modified;
     }
 
     @Override
@@ -107,18 +118,18 @@ public class Episode implements Mergeable<Episode>{
 
         Episode episode = (Episode) o;
 
-        if (air_date != null ? !air_date.equals(episode.air_date) : episode.air_date != null) return false;
-        if (!series.equals(episode.series)) return false;
-        if (title != null ? !title.equals(episode.title) : episode.title != null) return false;
+        if (episode_number != episode.episode_number) return false;
+        if (season_number != episode.season_number) return false;
+        if (season != null ? !season.equals(episode.season) : episode.season != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = air_date != null ? air_date.hashCode() : 0;
-        result = 31 * result + (title != null ? title.hashCode() : 0);
-        result = 31 * result + series.hashCode();
+        int result = episode_number;
+        result = 31 * result + season_number;
+        result = 31 * result + (season != null ? season.hashCode() : 0);
         return result;
     }
 }

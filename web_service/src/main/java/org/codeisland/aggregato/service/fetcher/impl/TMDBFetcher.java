@@ -1,7 +1,9 @@
 package org.codeisland.aggregato.service.fetcher.impl;
 
+import com.google.appengine.repackaged.com.google.common.primitives.Ints;
 import org.codeisland.aggregato.service.fetcher.SeriesFetcher;
 import org.codeisland.aggregato.service.storage.Episode;
+import org.codeisland.aggregato.service.storage.Season;
 import org.codeisland.aggregato.service.storage.Series;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -51,14 +53,26 @@ public class TMDBFetcher implements SeriesFetcher {
         }
     }
 
-    @Override
-    public Series getSeries(String name){
-        List<Integer> ids = findSeries(name);
-        String series_id = String.valueOf(ids.get(0)); // TODO How do we decide here?
-        return getSeriesForId(series_id);
+    /**
+     * Get an TMDB id from the given series. If non is currently present, an ID will be found by
+     *  querying the API.
+     */
+    private static int getTmdbId(Series series){
+        Integer tmdb_id = Ints.tryParse(series.optIdentifier(IDENTIFIER_KEY, ""));
+        if (tmdb_id == null){
+            int id = findSeries(series.getName());
+            series.putIdentifier(IDENTIFIER_KEY, String.valueOf(id));
+            return id;
+        }
+        return tmdb_id;
     }
 
-    private Series getSeriesForId(String tmdb_id){
+    @Override
+    public Series getSeries(String name){
+        return getSeriesForId(findSeries(name));
+    }
+
+    private static Series getSeriesForId(int tmdb_id){
         try {
             URL url = new URL(String.format(
                     BASE_URL+API_VERSION+"/tv/%s?api_key="+API_KEY, tmdb_id
@@ -72,7 +86,7 @@ public class TMDBFetcher implements SeriesFetcher {
 
             Date first_air_date = DATE_FORMAT.parse(series.getString("first_air_date"));
             Series s = new Series(series.getString("name"), series.getInt("number_of_seasons"), first_air_date);
-            s.putIdentifier(IDENTIFIER_KEY, tmdb_id);
+            s.putIdentifier(IDENTIFIER_KEY, String.valueOf(tmdb_id));
             return s;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -84,7 +98,7 @@ public class TMDBFetcher implements SeriesFetcher {
     /**
      * Returns a list of TMDB id's for the given name, in the order they we're returned by the API.
      */
-    private List<Integer> findSeries(String name) {
+    private static int findSeries(String name) {
         try {
             URL url = new URL(String.format(
                     BASE_URL+API_VERSION+"/search/tv?query=%s&api_key="+API_KEY, URLEncoder.encode(name, "UTF-8")
@@ -97,25 +111,27 @@ public class TMDBFetcher implements SeriesFetcher {
 
             JSONObject result_object = (JSONObject) json;
             JSONArray results = result_object.getJSONArray("results");
-            List<Integer> ids = new ArrayList<>(results.length());
 
+            /*List<Integer> ids = new ArrayList<>(results.length());
             for (int i = 0; i < results.length(); i++){
                 ids.add( results.getJSONObject(i).getInt("id") );
             }
-            return ids;
+            return ids;*/
+
+            int BEST_MATCH_FOUND = 0; // TODO How do we decide here?
+            return results.getJSONObject(BEST_MATCH_FOUND).getInt("id");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public List<Episode> getEpisodes(Series series) {
-        List<Episode> all_episodes = new ArrayList<>();
+    public List<Season> getSeasons(Series series) {
+        List<Season> all_seasons = new ArrayList<>();
+        int tmdb_id = getTmdbId(series);
         try {
             // Start with season 1, since 0 is usually the specials...
             for (int season_nr = 1; season_nr <= series.getSeasonCount(); season_nr++){
-                // TODO If we have no identifier, search for the series name instead!
-                String tmdb_id = series.optIdentifier(IDENTIFIER_KEY, null);
                 URL url = new URL(String.format(
                         BASE_URL+API_VERSION+"/tv/%s/season/%s?api_key="+API_KEY, tmdb_id, season_nr
                 ));
@@ -125,6 +141,11 @@ public class TMDBFetcher implements SeriesFetcher {
                 }
 
                 JSONObject season = (JSONObject) json;
+
+                Date season_air_date = DATE_FORMAT.parse(season.getString("air_date"));
+                Season current_season = new Season(series, season.getString("name"), season.getInt("season_number"), season_air_date);
+                all_seasons.add(current_season);
+
                 if (season.has("episodes")){
                     JSONArray episodes = season.getJSONArray("episodes");
                     for (int i = 0; i < episodes.length(); i++){
@@ -132,8 +153,8 @@ public class TMDBFetcher implements SeriesFetcher {
 
                         Date air_date = DATE_FORMAT.parse(episode.getString("air_date"));
 
-                        all_episodes.add(new Episode(
-                                series, episode.getString("name"),
+                        current_season.putEpisode(new Episode(
+                                current_season, episode.getString("name"),
                                 episode.getInt("episode_number"), episode.getInt("season_number"),
                                 air_date, episode.getString("overview")
                         ));
@@ -145,6 +166,6 @@ public class TMDBFetcher implements SeriesFetcher {
         } catch (ParseException e) {
             throw new RuntimeException("Could not parse season or episode air_date", e);
         }
-        return all_episodes;
+        return all_seasons;
     }
 }

@@ -11,6 +11,7 @@ public interface Mergeable<T> {
     /**
      * Merges the data from {@code other} with the data in this Object.
      * @param other the object to merge data from.
+     * @return whether this object was modified or not.
      */
-    public void merge(T other);
+    public boolean merge(T other);
 }

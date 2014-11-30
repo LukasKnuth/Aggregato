@@ -2,7 +2,7 @@ package org.codeisland.aggregato.service.workers;
 
 import org.codeisland.aggregato.service.fetcher.FetchManager;
 import org.codeisland.aggregato.service.fetcher.SeriesFetcher;
-import org.codeisland.aggregato.service.storage.Episode;
+import org.codeisland.aggregato.service.storage.Season;
 import org.codeisland.aggregato.service.storage.Series;
 
 import javax.servlet.ServletException;
@@ -37,16 +37,22 @@ public class SeriesWorker extends HttpServlet {
             } else {
                 Logger logger = Logger.getLogger(this.getClass().getName());
                 logger.warning(String.format("Series '%s' not found in ANY database!", series_name));
+
+                resp.setStatus(200);
+                return;
             }
         }
         // Series is there, load the episodes:
-        List<Episode> fetched_episodes = fetcher.getEpisodes(series);
-        List<Episode> stored_episodes = ofy().load().type(Episode.class).filter("series", series).list();
+        List<Season> fetched_seasons = fetcher.getSeasons(series);
+        List<Season> stored_seasons = series.getSeasons();
 
         // Diff
-        List<Episode> new_episodes = new ArrayList<>(fetched_episodes);
-        new_episodes.removeAll(stored_episodes);
-        ofy().save().entities(new_episodes);
+        List<Season> new_seasons = new ArrayList<>(fetched_seasons);
+        new_seasons.removeAll(stored_seasons);
+        for (Season season : new_seasons){
+            series.putSeason(season);
+        }
+        ofy().save().entities(series);
 
         // All done:
         resp.setStatus(200);
