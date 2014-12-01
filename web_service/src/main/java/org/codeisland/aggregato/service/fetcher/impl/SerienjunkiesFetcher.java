@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A {@link org.codeisland.aggregato.service.fetcher.NewsFetcher} for the RSS/Atom feeds of
@@ -22,7 +24,8 @@ import java.util.Set;
  */
 public class SerienjunkiesFetcher implements NewsFetcher {
 
-    public static final String LANGUAGE = "de";
+    private static final String LANGUAGE = "de";
+    private static final Logger logger = Logger.getLogger(SerienjunkiesFetcher.class.getName());
 
     @Override
     public Set<News> getNews(Series series) {
@@ -43,7 +46,11 @@ public class SerienjunkiesFetcher implements NewsFetcher {
                 ));
             }
         } catch (FeedException | IOException e) {
-            e.printStackTrace();
+            logger.log(
+                    Level.SEVERE,
+                    String.format("The feed for '%s' could not be found under %s", series.getName(), url),
+                    e
+            );
         }
         return news;
     }

@@ -1,5 +1,6 @@
 <?xml verison="1.0" encoding="UTF-8" ?>
 <cronentries>
+    <!-- MAX 20 Jobs for Free Applications! -->
     <cron>
         <url>/jobs/subscriptions</url>
         <description>Add new Episodes to the subscribers watchlist</description>
@@ -9,5 +10,10 @@
         <url>/jobs/series_update</url>
         <description>Get changes from the series databases and pull in new information</description>
         <schedule>every 12 hours</schedule>
+    </cron>
+    <cron>
+        <url>/jobs/news_update</url>
+        <description>Check for news on Series</description>
+        <schedule>every 8 hours</schedule>
     </cron>
 </cronentries>

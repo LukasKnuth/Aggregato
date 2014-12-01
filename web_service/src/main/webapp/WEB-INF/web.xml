@@ -66,6 +66,14 @@
         <servlet-name>series_update_job</servlet-name>
         <url-pattern>/jobs/series_update</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>news_update_job</servlet-name>
+        <servlet-class>org.codeisland.aggregato.service.cron.NewsUpdateJob</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>news_update_job</servlet-name>
+        <url-pattern>/jobs/news_update</url-pattern>
+    </servlet-mapping>
 
     <!-- Servlets -->
     <servlet>

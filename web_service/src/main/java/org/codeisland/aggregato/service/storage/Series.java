@@ -28,6 +28,8 @@ public class Series implements Mergeable<Series>{
      */
     public static class COMPLETE_TREE extends WITH_SEASONS{}
 
+    private static final Logger logger = Logger.getLogger(Series.class.getName());
+
     private @Id Long key;
     private String name;
     private int season_count;
@@ -70,8 +72,6 @@ public class Series implements Mergeable<Series>{
             }
         }
         if (!this.identifiers.equals(other.identifiers)){
-            Logger logger = Logger.getLogger(Series.class.getName());
-
             for (Map.Entry<String, String> id : other.identifiers.entrySet()) {
                 if (this.identifiers.containsKey(id.getKey())){
                     // Key is already there, check the values!
@@ -169,6 +169,7 @@ public class Series implements Mergeable<Series>{
     }
 
     public void putIdentifier(String key, String identifier){
+        // TODO Fetchers should be able to add new Identifiers without saving the series themselfs. Maybe a global was_modified flag?
         identifiers.put(key, identifier);
     }
 

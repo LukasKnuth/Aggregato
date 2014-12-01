@@ -32,5 +32,5 @@
 
 ### News
 
-- [ ] Check news Feeds every 12h
+- [x] Check news Feeds every 12h
 - [x] Make the link the key, so we don't get doublets
