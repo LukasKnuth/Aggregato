@@ -27,8 +27,8 @@
 
 ### Database
 
-- [ ] Check the Databases for new info every 24h
-- [ ] Merge gathered information into existing information
+- [x] Check the Databases for new info every 24h
+- [x] Merge gathered information into existing information
 
 ### News
 

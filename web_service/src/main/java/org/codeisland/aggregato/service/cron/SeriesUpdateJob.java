@@ -24,7 +24,7 @@ public class SeriesUpdateJob extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         SeriesFetcher fetcher = FetchManager.INSTANCE;
-        List<Series> series = ofy().load().type(Series.class).list();
+        List<Series> series = ofy().load().group(Series.COMPLETE_TREE.class).type(Series.class).list();
         List<Series> changed_series = new LinkedList<>();
 
         for (Series s : series){
