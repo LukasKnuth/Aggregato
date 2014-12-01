@@ -176,12 +176,13 @@ public class TMDBFetcher implements SeriesFetcher {
         Map<Integer, Season> changedSeasons = getChangedSeasons(series);
         if (!changedSeasons.isEmpty()){
             for (Map.Entry<Integer, Season> season : changedSeasons.entrySet()) {
-                series.putSeason(season.getValue());
                 // Now, check the episodes:
                 List<Episode> changed_episodes = getChangedEpisodes(season.getValue(), season.getKey(), series_tmdb_id);
                 for (Episode episode : changed_episodes) {
                     season.getValue().putEpisode(episode);
                 }
+                // Save the changed season.
+                series.putSeason(season.getValue());
             }
             was_modified = true;
         }

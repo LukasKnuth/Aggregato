@@ -103,7 +103,7 @@ public class Season implements Mergeable<Season>{
 
     @Override
     public boolean merge(Season other) {
-        boolean was_modified = false;
+        boolean was_modified = !(this.modified_episodes.isEmpty());
         if (this.name == null && other.name != null){
             this.name = other.name;
             was_modified = true;
@@ -112,22 +112,6 @@ public class Season implements Mergeable<Season>{
             this.air_date = other.air_date;
             was_modified = true;
         }
-//        // Merge the episodes:
-//        int i;
-//        List<Episode> my_episodes = this.getEpisodes();
-//        for (Episode e : other.getEpisodes()){
-//            i = my_episodes.indexOf(e);
-//            if (i == -1){
-//                // Episode is not in the list:
-//                this.putEpisode(e);
-//                was_modified = true;
-//            } else {
-//                // Episode already in the list:
-//                if (my_episodes.get(i).merge(e)){
-//                    was_modified = true;
-//                }
-//            }
-//        }
         return was_modified;
     }
 
