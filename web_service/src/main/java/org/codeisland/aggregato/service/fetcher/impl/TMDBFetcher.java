@@ -1,6 +1,15 @@
 package org.codeisland.aggregato.service.fetcher.impl;
 
+import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
+import com.google.appengine.api.memcache.Expiration;
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.repackaged.com.google.common.primitives.Ints;
+import com.google.appengine.tools.cloudstorage.*;
+import com.google.common.io.ByteStreams;
 import org.codeisland.aggregato.service.fetcher.SeriesFetcher;
 import org.codeisland.aggregato.service.storage.Episode;
 import org.codeisland.aggregato.service.storage.Season;
@@ -13,9 +22,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.channels.Channels;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Lukas Knuth
@@ -26,12 +38,19 @@ public class TMDBFetcher implements SeriesFetcher {
     // TODO Add a ConnectionPool or keep connections alive, so we don't have to open one for every request.
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    private static final Logger logger = Logger.getLogger(TMDBFetcher.class.getName());
 
     private static final String BASE_URL = "http://api.themoviedb.org/";
     private static final String API_KEY = "f3737c9013174480c625c67f4d84d741";
     private static final String API_VERSION = "3";
 
     private static final String IDENTIFIER_KEY = "TMDB";
+
+    private static GcsService cloud_storage = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
+    private static BlobstoreService blobstore = BlobstoreServiceFactory.getBlobstoreService();
+    private static MemcacheService memcache = MemcacheServiceFactory.getMemcacheService();
+
+    private static final String DEFAULT_GCS_BUCKET = AppIdentityServiceFactory.getAppIdentityService().getDefaultGcsBucketName();
 
     /**
      * <p>Load a json object from the given {@code URL}.</p>
@@ -65,12 +84,100 @@ public class TMDBFetcher implements SeriesFetcher {
         return tmdb_id;
     }
 
-    @Override
-    public Series getSeries(String name){
-        return getSeriesForId(findSeries(name));
+    private enum ImageType{
+        POSTER("w780"), BACKDROP("w1280");
+        private final String size;
+        ImageType(String size) {
+            this.size = size;
+        }
     }
 
-    private static Series getSeriesForId(int tmdb_id){
+    private static BlobKey storeImage(Series series, String partial_url, ImageType type){
+        String image_name = String.format("series/%s_%s", series.getId(), type);
+        GcsFilename file = new GcsFilename(DEFAULT_GCS_BUCKET, image_name);
+        return storeImage(partial_url, type, file);
+    }
+
+    private static BlobKey storeImage(Season season, String partial_url, ImageType type){
+        String image_name = String.format("season/%s_%s", season.getId(), type);
+        GcsFilename file = new GcsFilename(DEFAULT_GCS_BUCKET, image_name);
+        return storeImage(partial_url, type, file);
+    }
+
+    /**
+     * <p>Stores the image at the given {@code partial_url} to the Google Cloud Storage,
+     *  returning a {@link com.google.appengine.api.blobstore.BlobKey} to serve it.</p>
+     * <p>You should normally not call this method directly, but use one of the versions
+     *  implemented to store images for a certain entity.</p>
+     * @param partial_url the partial image-url, as returned by an API call.
+     * @param type the type of image we're storing.
+     * @param file the File to be created/overridden with this image.
+     * @see #storeImage(org.codeisland.aggregato.service.storage.Season, String, org.codeisland.aggregato.service.fetcher.impl.TMDBFetcher.ImageType)
+     * @see #storeImage(org.codeisland.aggregato.service.storage.Series, String, org.codeisland.aggregato.service.fetcher.impl.TMDBFetcher.ImageType)
+     */
+    private static BlobKey storeImage(String partial_url, ImageType type, GcsFilename file){
+        String full_image_url = getImageBaseURL()+"/"+type.size+partial_url;
+
+        try {
+            GcsOutputChannel outputChannel = cloud_storage.createOrReplace(file, GcsFileOptions.getDefaultInstance());
+            URL image_url = new URL(full_image_url);
+            InputStream in = image_url.openStream();
+            try {
+                ByteStreams.copy(in, Channels.newOutputStream(outputChannel));
+                outputChannel.close();
+
+                return blobstore.createGsBlobKey(String.format(
+                        "/gs/%s/%s", file.getBucketName(), file.getObjectName()
+                ));
+            } finally {
+                if (in != null) in.close();
+            }
+        } catch (IOException e) {
+            logger.log(Level.WARNING,
+                    String.format("Couldn't get an image from the API. Maybe the size parameter changed?? URL: %s", full_image_url),
+                    e
+            );
+        }
+        return null;
+    }
+
+    /**
+     * Obtain the current base-url for fetching images from TMDB.
+     */
+    private static String getImageBaseURL(){
+        final String KEY = "TMDB_IMG_BASE_URL";
+        if (memcache.contains(KEY)){
+            return (String) memcache.get(KEY);
+        } else {
+            try {
+                URL url = new URL(BASE_URL+API_VERSION+"/configuration?api_key="+API_KEY);
+                Object json = jsonFromUrl(url);
+                if (!(json instanceof JSONObject)){
+                    throw new RuntimeException("Expected a JSON Object...");
+                }
+                JSONObject image_config = ((JSONObject) json).getJSONObject("images");
+                String img_base_url = image_config.getString("base_url");
+                memcache.put(KEY, img_base_url, Expiration.byDeltaSeconds(60 * 60 * 48)); // 48 hours
+                return img_base_url;
+            } catch (IOException e) {
+                throw new RuntimeException("Couldn't read Config info from API", e);
+            }
+        }
+    }
+
+    @Override
+    public Series getSeries(String name){
+        return getSeriesForId(findSeries(name), true); // Also load images!
+    }
+
+    /**
+     * Loads a Series </b>without</b> loading any images for it.
+     */
+    private static Series getSeriesForId(int tmdb_id) {
+        return getSeriesForId(tmdb_id, false);
+    }
+
+    private static Series getSeriesForId(int tmdb_id, boolean load_images){
         try {
             URL url = new URL(String.format(
                     BASE_URL+API_VERSION+"/tv/%s?api_key="+API_KEY, tmdb_id
@@ -85,6 +192,11 @@ public class TMDBFetcher implements SeriesFetcher {
             Date first_air_date = DATE_FORMAT.parse(series.getString("first_air_date"));
             Series s = new Series(series.getString("name"), series.getInt("number_of_seasons"), first_air_date);
             s.putIdentifier(IDENTIFIER_KEY, String.valueOf(tmdb_id));
+
+            if (load_images){
+                s.setBackdrop(storeImage(s, series.getString("backdrop_path"), ImageType.BACKDROP));
+                s.setPoster(storeImage(s, series.getString("poster_path"), ImageType.POSTER));
+            }
             return s;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -142,6 +254,7 @@ public class TMDBFetcher implements SeriesFetcher {
 
                 Date season_air_date = DATE_FORMAT.parse(season.getString("air_date"));
                 Season current_season = new Season(series, season.getString("name"), season.getInt("season_number"), season_air_date);
+                current_season.setPoster(storeImage(current_season, season.getString("poster_path"), ImageType.POSTER));
                 all_seasons.add(current_season);
 
                 if (season.has("episodes")){
