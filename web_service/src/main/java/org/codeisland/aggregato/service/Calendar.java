@@ -33,7 +33,7 @@ public class Calendar extends HttpServlet{
                     compile(new InputStreamReader(new FileInputStream("templates/calendar.html")));
         }
         template.execute(new Object() {
-            List<Episode> episodes = ofy().load().type(Episode.class).order("episode_number").list(); // Just set the name for the mustache section.
+            List<Episode> episodes = ofy().load().type(Episode.class).list(); // Just set the name for the mustache section.
         }, resp.getWriter());
     }
 

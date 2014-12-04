@@ -30,7 +30,7 @@ public class Episode implements Mergeable<Episode>{
     private @Index String air_date;
     private @Index String title;
     private String description;
-    private @Index int episode_number;
+    private int episode_number;
     private int season_number;
 
     @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
@@ -59,6 +59,7 @@ public class Episode implements Mergeable<Episode>{
         return title;
     }
 
+    @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
     public Series getSeries(){
         return season.get().getSeries();
     }

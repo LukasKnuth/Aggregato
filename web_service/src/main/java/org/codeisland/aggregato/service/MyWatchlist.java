@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -70,11 +71,10 @@ public class MyWatchlist extends HttpServlet{
                 watchlist = new Watchlist(currentUser);
             }
 
-            String[] episodes = req.getParameterValues("episodes");
-            for (String ep : episodes){
-                Long episode_id = Long.parseLong(ep);
-                Episode episode = ofy().load().type(Episode.class).id(episode_id).now();
-                watchlist.addItem(episode);
+            String[] keys = req.getParameterValues("episodes");
+            Collection<Episode> episodes = ofy().load().type(Episode.class).ids(keys).values();
+            for (Episode ep : episodes){
+                watchlist.addItem(ep);
             }
 
             ofy().save().entities(watchlist);

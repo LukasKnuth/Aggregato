@@ -2,6 +2,10 @@ package org.codeisland.aggregato.service.storage;
 
 import com.google.api.server.spi.config.AnnotationBoolean;
 import com.google.api.server.spi.config.ApiResourceProperty;
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.images.ImagesService;
+import com.google.appengine.api.images.ImagesServiceFactory;
+import com.google.appengine.api.images.ServingUrlOptions;
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.*;
@@ -29,25 +33,31 @@ public class Series implements Mergeable<Series>{
     public static class COMPLETE_TREE extends WITH_SEASONS{}
 
     private static final Logger logger = Logger.getLogger(Series.class.getName());
+    private static final ImagesService images_service = ImagesServiceFactory.getImagesService();
 
-    private @Id Long key;
+    private @Id String key;
     private String name;
     private int season_count;
     private Date start_date;
     private Date end_date;
-    private @Load(WITH_SEASONS.class) List<Ref<Season>> seasons = new ArrayList<>();
-
-    @ApiResourceProperty(ignored = AnnotationBoolean.TRUE) // Hide this from export via Endpoints.
-    private @Index List<String> subscribers = new ArrayList<>(); // List of user-ID's
-    @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
     private @Index String name_normalized; // We need this for case-insensitive filtering
-    @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
     private Map<String, String> identifiers = new HashMap<>();
+
+    private @ApiResourceProperty(ignored = AnnotationBoolean.TRUE) BlobKey poster;
+    private @ApiResourceProperty(ignored = AnnotationBoolean.TRUE) BlobKey backdrop;
+    @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
+    private @Load(WITH_SEASONS.class) List<Ref<Season>> seasons = new ArrayList<>();
+    @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
+    private @Index List<String> subscribers = new ArrayList<>(); // List of user-ID's
 
     private final @Ignore Set<Season> modified_seasons = new HashSet<>();
 
     private Series() {} // Objectify needs this one!
     public Series(String name, int season_count, Date start_date) {
+        String name_key = name.replaceAll("[^\\w]", "_").toLowerCase();
+        String date_key = String.valueOf(start_date.getYear()+1900);
+        this.key = name_key+"_"+date_key;
+
         this.name = name;
         this.name_normalized = name.toUpperCase();
         this.season_count = season_count;
@@ -89,6 +99,12 @@ public class Series implements Mergeable<Series>{
                     was_modified = true;
                 }
             }
+        }
+        if (other.poster != null){
+            this.setPoster(other.poster);
+        }
+        if (other.backdrop != null){
+            this.setBackdrop(other.backdrop);
         }
         return was_modified;
     }
@@ -156,6 +172,33 @@ public class Series implements Mergeable<Series>{
         this.end_date = end_date;
     }
 
+    @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
+    public BlobKey getPoster() {
+        return poster;
+    }
+
+    public String getPosterLink(){
+        ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(this.poster);
+        return images_service.getServingUrl(options);
+    }
+
+    public void setPoster(BlobKey poster) {
+        this.poster = poster;
+    }
+
+    public BlobKey getBackdrop() {
+        return backdrop;
+    }
+
+    public String getBackdropLink(){
+        ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(this.backdrop);
+        return images_service.getServingUrl(options);
+    }
+
+    public void setBackdrop(BlobKey backdrop) {
+        this.backdrop = backdrop;
+    }
+
     public int getSeasonCount() {
         return season_count;
     }
@@ -173,7 +216,7 @@ public class Series implements Mergeable<Series>{
         identifiers.put(key, identifier);
     }
 
-    public Long getId(){
+    public String getId(){
         return key;
     }
 

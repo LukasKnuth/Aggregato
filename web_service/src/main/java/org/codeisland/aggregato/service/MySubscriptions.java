@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -64,11 +63,7 @@ public class MySubscriptions extends HttpServlet {
             UserService userService = UserServiceFactory.getUserService();
             User currentUser = userService.getCurrentUser();
 
-            String[] series_ids = req.getParameterValues("series");
-            List<Long> keys = new ArrayList<>(series_ids.length);
-            for (String s_id : series_ids){
-                keys.add(Long.parseLong(s_id));
-            }
+            String[] keys = req.getParameterValues("series");
             Collection<Series> series = ofy().load().type(Series.class).ids(keys).values();
 
             for (Series s : series){

@@ -5,10 +5,7 @@ import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
 import com.google.appengine.api.oauth.OAuthRequestException;
 import com.google.appengine.api.users.User;
-import org.codeisland.aggregato.service.storage.Episode;
-import org.codeisland.aggregato.service.storage.News;
-import org.codeisland.aggregato.service.storage.Series;
-import org.codeisland.aggregato.service.storage.Watchlist;
+import org.codeisland.aggregato.service.storage.*;
 import org.codeisland.aggregato.service.workers.QueueManager;
 
 import java.util.Collections;
@@ -51,10 +48,11 @@ public class SeriesAPI {
         return seriesList;
     }
 
-    public List<Episode> listEpisodes(@Named("series_id") Long series_id){
-        Series show = ofy().load().type(Series.class).id(series_id).now();
+    public List<Season> listSeasons(@Named("series_id") String series_id){
+        Series show = ofy().load().group(Series.COMPLETE_TREE.class).
+                type(Series.class).id(series_id).now();
         if (show != null){
-            return ofy().load().type(Episode.class).filter("series", show).list();
+            return show.getSeasons();
         } else {
             return Collections.emptyList();
         }
@@ -64,7 +62,7 @@ public class SeriesAPI {
     ------------------ Watchlist -----------------
      */
 
-    public void addToWatchlist(User user, @Named("episode_id") Long episode_id) throws OAuthRequestException {
+    public void addToWatchlist(User user, @Named("episode_id") String episode_id) throws OAuthRequestException {
         if (user == null){
             throw new OAuthRequestException(OAUTH_LOGIN_FAIL);
         }
@@ -79,7 +77,7 @@ public class SeriesAPI {
         ofy().save().entities(watchlist);
     }
 
-    public void addSeriesToWatchlist(User user, @Named("series_id") Long series_id) throws OAuthRequestException {
+    public void addSeriesToWatchlist(User user, @Named("series_id") String series_id) throws OAuthRequestException {
         if (user == null){
             throw new OAuthRequestException(OAUTH_LOGIN_FAIL);
         }
@@ -88,16 +86,18 @@ public class SeriesAPI {
         if (watchlist == null){
             watchlist = new Watchlist(user);
         }
-        Series series = ofy().load().type(Series.class).id(series_id).now();
-        List<Episode> episodes = ofy().load().type(Episode.class).filter("series", series).list();
+        Series series = ofy().load().group(Series.COMPLETE_TREE.class).
+                type(Series.class).id(series_id).now();
 
-        for (Episode e : episodes){
-            watchlist.addItem(e);
+        for (Season season : series.getSeasons()) {
+            for (Episode episode : season.getEpisodes()) {
+                watchlist.addItem(episode);
+            }
         }
         ofy().save().entities(watchlist);
     }
 
-    public void removeFromWatchlist(User user, @Named("episode_id") Long episode_id) throws OAuthRequestException {
+    public void removeFromWatchlist(User user, @Named("episode_id") String episode_id) throws OAuthRequestException {
         if (user == null){
             throw new OAuthRequestException(OAUTH_LOGIN_FAIL);
         }
@@ -125,7 +125,7 @@ public class SeriesAPI {
     ------------------ Subscriptions ---------------
      */
 
-    public void addSubscription(User user, @Named("series_id") Long series_id) throws OAuthRequestException {
+    public void addSubscription(User user, @Named("series_id") String series_id) throws OAuthRequestException {
         if (user == null){
             throw new OAuthRequestException(OAUTH_LOGIN_FAIL);
         }
@@ -135,7 +135,7 @@ public class SeriesAPI {
         ofy().save().entities(series);
     }
 
-    public void cancelSubscription(User user, @Named("series_id") Long series_id) throws OAuthRequestException {
+    public void cancelSubscription(User user, @Named("series_id") String series_id) throws OAuthRequestException {
         if (user == null){
             throw new OAuthRequestException(OAUTH_LOGIN_FAIL);
         }
@@ -157,7 +157,7 @@ public class SeriesAPI {
     ----------------- News -----------------
      */
 
-    public List<News> getNews(@Named("series_id") Long series_id){
+    public List<News> getNews(@Named("series_id") String series_id){
         Series series = ofy().load().type(Series.class).id(series_id).now();
         List<News> news = ofy().load().type(News.class).
                 filter("series", series).order("pubDate").limit(20).
