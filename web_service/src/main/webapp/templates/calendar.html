@@ -1,42 +1,33 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title>Series</title>
-</head>
-<body>
-
-    <h1>Series</h1>
-    <form method="post" action="/calendar">
-        <label>
-            Series to add:
-            <input type="text" name="series_name">
-        </label>
-        <input type="submit" value="Load episodes">
-    </form>
-    <table>
-        <thead>
-            <tr>
-                <th>Series</th>
-                <th>Episode</th>
-                <th>Aired</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#episodes}}
-            <tr>
-                <td>{{series.name}}</td>
-                <td>{{toString}}</td>
-                <td>{{airDate}}</td>
-            </tr>
-            {{/episodes}}
-            {{^episodes}}
-            <tr>
-                <td colspan="3"><h3>No data here...</h3></td>
-            </tr>
-            {{/episodes}}
-        </tbody>
-    </table>
-
-</body>
-</html>
+<h1>Series</h1>
+<form method="post" action="/calendar">
+    <div class="form-group">
+        <label for="series_name">Series to add:</label>
+        <input type="text" name="series_name" id="series_name" class="form-control">
+    </div>
+    <input type="submit" value="Load episodes" class="btn btn-default">
+</form>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Series</th>
+            <th>Season</th>
+            <th>Episode</th>
+            <th>Aired</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#episodes}}
+        <tr>
+            <td>{{series.name}}</td>
+            <td>{{season.name}}</td>
+            <td>{{title}}</td>
+            <td>{{airDate}}</td>
+        </tr>
+        {{/episodes}}
+        {{^episodes}}
+        <tr>
+            <td colspan="3"><h3>No data here...</h3></td>
+        </tr>
+        {{/episodes}}
+    </tbody>
+</table>

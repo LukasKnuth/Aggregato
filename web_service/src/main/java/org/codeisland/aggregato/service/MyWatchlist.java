@@ -3,8 +3,7 @@ package org.codeisland.aggregato.service;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.samskivert.mustache.Mustache;
-import com.samskivert.mustache.Template;
+import org.codeisland.aggregato.service.frontend.TemplateEngine;
 import org.codeisland.aggregato.service.storage.Episode;
 import org.codeisland.aggregato.service.storage.Watchlist;
 
@@ -12,9 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -28,8 +25,6 @@ import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
  */
 public class MyWatchlist extends HttpServlet{
 
-    private Template template;
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         final UserService userService = UserServiceFactory.getUserService();
@@ -42,19 +37,17 @@ public class MyWatchlist extends HttpServlet{
             final List<Episode> episodeList = ofy().load().type(Episode.class).list();
 
             resp.setCharacterEncoding("UTF-8");
-            if (this.template == null){
-                this.template = Mustache.compiler().
-                        compile(new InputStreamReader(new FileInputStream("templates/watchlist.html")));
-            }
-            this.template.execute(new Object() {
+            TemplateEngine.writeTemplate(resp.getWriter(), "Watchlist", "templates/watchlist.html", new Object() {
                 Set<Episode> watchlist = (wlist != null) ? wlist.getWatchlist() : Collections.<Episode>emptySet();
                 String user = currentUser.getNickname();
                 List<Episode> episodes = episodeList;
                 String logout_link = userService.createLogoutURL(thisUrl);
-            }, resp.getWriter());
+            });
         } else {
             // User is not logged in!
-            resp.getWriter().format("<a href='%s'>Login first!</a>", userService.createLoginURL(thisUrl));
+            TemplateEngine.writeFormat(resp.getWriter(), "Login first",
+                    "<a href='%s'>Login first!</a>", userService.createLoginURL(thisUrl)
+            );
         }
     }
 
@@ -78,9 +71,9 @@ public class MyWatchlist extends HttpServlet{
             }
 
             ofy().save().entities(watchlist);
-            resp.getWriter().println("Saved new episodes to watchlist");
+            TemplateEngine.writeString(resp.getWriter(), "Watchlist", "Saved new episodes to watchlist");
         } else {
-            resp.getWriter().println("you're not logged in...");
+            TemplateEngine.writeString(resp.getWriter(), "Watchlist", "you're not logged in...");
         }
     }
 }
