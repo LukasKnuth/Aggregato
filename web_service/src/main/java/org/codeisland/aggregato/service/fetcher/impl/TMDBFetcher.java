@@ -194,8 +194,14 @@ public class TMDBFetcher implements SeriesFetcher {
             s.putIdentifier(IDENTIFIER_KEY, String.valueOf(tmdb_id));
 
             if (load_images){
-                s.setBackdrop(storeImage(s, series.getString("backdrop_path"), ImageType.BACKDROP));
-                s.setPoster(storeImage(s, series.getString("poster_path"), ImageType.POSTER));
+                String backdrop_link = series.optString("backdrop_path", null);
+                if (backdrop_link != null) {
+                    s.setBackdrop(storeImage(s, backdrop_link, ImageType.BACKDROP));
+                }
+                String poster_link = series.optString("poster_path", null);
+                if (poster_link != null) {
+                    s.setPoster(storeImage(s, poster_link, ImageType.POSTER));
+                }
             }
             return s;
         } catch (IOException e) {
@@ -240,8 +246,7 @@ public class TMDBFetcher implements SeriesFetcher {
         List<Season> all_seasons = new ArrayList<>();
         int tmdb_id = getTmdbId(series);
         try {
-            // Start with season 1, since 0 is usually the specials...
-            for (int season_nr = 1; season_nr <= series.getSeasonCount(); season_nr++){
+            for (int season_nr = 0; season_nr <= series.getSeasonCount(); season_nr++){
                 URL url = new URL(String.format(
                         BASE_URL+API_VERSION+"/tv/%s/season/%s?api_key="+API_KEY, tmdb_id, season_nr
                 ));
@@ -254,7 +259,10 @@ public class TMDBFetcher implements SeriesFetcher {
 
                 Date season_air_date = DATE_FORMAT.parse(season.getString("air_date"));
                 Season current_season = new Season(series, season.getString("name"), season.getInt("season_number"), season_air_date);
-                current_season.setPoster(storeImage(current_season, season.getString("poster_path"), ImageType.POSTER));
+                String poster_link = season.optString("poster_path", null);
+                if (poster_link != null) {
+                    current_season.setPoster(storeImage(current_season, poster_link, ImageType.POSTER));
+                }
                 all_seasons.add(current_season);
 
                 if (season.has("episodes")){
@@ -283,7 +291,8 @@ public class TMDBFetcher implements SeriesFetcher {
     @Override
     public boolean update(Series series) {
         int series_tmdb_id = getTmdbId(series);
-        Series newest = getSeriesForId(series_tmdb_id);
+        boolean load_images = (series.getPoster() == null || series.getBackdrop() == null);
+        Series newest = getSeriesForId(series_tmdb_id, load_images);
         boolean was_modified = series.merge(newest);
 
         Map<Integer, Season> changedSeasons = getChangedSeasons(series);
@@ -325,9 +334,17 @@ public class TMDBFetcher implements SeriesFetcher {
 
                     for (int j = 0; j < items.length(); j++) {
                         JSONObject season_change = items.getJSONObject(j).getJSONObject("value");
+
+                        int season_nr = season_change.getInt("season_number");
+                        boolean fetch_poster = true;
+                        Season old_season = series.getSeason(season_nr);
+                        if (old_season != null){
+                            // If this season is already in the Database and has no Poster, fetch it!
+                            fetch_poster = old_season.getPoster() == null;
+                        }
                         changed_seasons.put(
                                 season_change.getInt("season_id"),
-                                getSeason(series, season_change.getInt("season_number"))
+                                getSeason(series, season_nr, fetch_poster)
                         );
                     }
 
@@ -371,7 +388,7 @@ public class TMDBFetcher implements SeriesFetcher {
         return changed_episodes;
     }
 
-    private static Season getSeason(Series series, int season_nr){
+    private static Season getSeason(Series series, int season_nr, boolean fetch_poster){
         int series_tmdb_id = getTmdbId(series);
         try {
             URL url = new URL(String.format(
@@ -384,9 +401,15 @@ public class TMDBFetcher implements SeriesFetcher {
             JSONObject season = (JSONObject) json;
 
             Date season_air_date = DATE_FORMAT.parse(season.getString("air_date"));
-            return new Season(
-                    series, season.getString("name"), season.getInt("season_number"), season_air_date
-            );
+            Season s = new Season(series, season.getString("name"), season.getInt("season_number"), season_air_date);
+
+            if (fetch_poster){
+                String poster_link = season.optString("poster_path", null);
+                if (poster_link != null) {
+                    s.setPoster(storeImage(s, poster_link, ImageType.POSTER));
+                }
+            }
+            return s;
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (ParseException e) {

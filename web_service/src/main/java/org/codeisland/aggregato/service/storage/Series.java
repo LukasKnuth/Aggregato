@@ -115,6 +115,19 @@ public class Series implements Mergeable<Series>{
     }
 
     /**
+     * Returns the season with the given season nr, or {@code null} if no such season is present.
+     */
+    public Season getSeason(int season_nr){
+        Collection<Season> sns = ofy().load().refs(this.seasons).values();
+        for (Season season : sns) {
+            if (season.getSeasonNr() == season_nr){
+                return season;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Adds the season to this series, merging it in if it already exists.
      */
     public void putSeason(Season season){
