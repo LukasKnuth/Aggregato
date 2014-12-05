@@ -43,6 +43,7 @@ public class TMDBFetcher implements SeriesFetcher {
     private static final String BASE_URL = "http://api.themoviedb.org/";
     private static final String API_KEY = "f3737c9013174480c625c67f4d84d741";
     private static final String API_VERSION = "3";
+    private static final int STATUS_CODE_OK = 1;
 
     private static final String IDENTIFIER_KEY = "TMDB";
 
@@ -62,6 +63,7 @@ public class TMDBFetcher implements SeriesFetcher {
         InputStream in = null;
         try {
             in = url.openStream();
+            // TODO Maybe we should check for errors here? (https://www.themoviedb.org/documentation/api/status-codes)
             return new JSONTokener(in).nextValue();
         } finally {
             if (in != null){
@@ -256,6 +258,11 @@ public class TMDBFetcher implements SeriesFetcher {
                 }
 
                 JSONObject season = (JSONObject) json;
+
+                if (season.optInt("status_code", STATUS_CODE_OK) != STATUS_CODE_OK){
+                    logger.info(String.format("A season %s does not exist for %s", season_nr, series.getName()));
+                    continue;
+                }
 
                 Date season_air_date = DATE_FORMAT.parse(season.getString("air_date"));
                 Season current_season = new Season(series, season.getString("name"), season.getInt("season_number"), season_air_date);
