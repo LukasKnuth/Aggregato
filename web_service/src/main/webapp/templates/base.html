@@ -28,6 +28,24 @@
                     <li><a href="/watchlist">Watchlist</a></li>
                     <li><a href="/subscriptions">Subscriptions</a></li>
                 </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {{#user}}
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                               aria-expanded="false" style="padding-top: 8px; padding-bottom: 10px;"
+                            >
+                                {{name}} <img class="img-circle" style="margin-left: 10px; height: 32px;" src="{{avatar}}"/>
+                            </a>
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a href="{{logoutLink}}">Logout</a></li>
+                            </ul>
+                        </li>
+                    {{/user}}
+                    {{^user}}
+                        <li><a href="{{loginLink}}">Login</a></li>
+                    {{/user}}
+                    <li></li>
+                </ul>
             </div>
         </div>
     </nav>
