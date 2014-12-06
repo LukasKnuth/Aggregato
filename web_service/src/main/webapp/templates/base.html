@@ -37,12 +37,12 @@
                                 {{name}} <img class="img-circle" style="margin-left: 10px; height: 32px;" src="{{avatar}}"/>
                             </a>
                             <ul class="dropdown-menu" role="menu">
-                                <li><a href="{{logoutLink}}">Logout</a></li>
+                                <li><a href="{{loginLogoutLink}}">Logout</a></li>
                             </ul>
                         </li>
                     {{/user}}
                     {{^user}}
-                        <li><a href="{{loginLink}}">Login</a></li>
+                        <li><a href="{{loginLogoutLink}}">Login</a></li>
                     {{/user}}
                     <li></li>
                 </ul>

@@ -67,7 +67,7 @@ public class FrontendHandler extends HttpServlet {
             page_content = handlerResult.getContent();
         }
 
-       final Mustache.Lambda navigationLambda = new Mustache.Lambda() {
+        final Mustache.Lambda navigation_lambda = new Mustache.Lambda() {
             @Override
             public void execute(Template.Fragment fragment, Writer writer) throws IOException {
                 String link = fragment.execute();
@@ -79,35 +79,32 @@ public class FrontendHandler extends HttpServlet {
             }
         };
 
-        Object context;
+        final Object user_info;
+        final String login_logout_link;
         if (req.getUserPrincipal() != null){
             // User is logged in:
             final User user = userService.getCurrentUser();
             final Gravatar gravatar = new Gravatar(
                     32, GravatarRating.GENERAL_AUDIENCES, GravatarDefaultImage.IDENTICON
             );
-            final String logoutUrl = userService.createLogoutURL(req.getRequestURI());
-            final Object userInfo = new Object(){
+            login_logout_link = userService.createLogoutURL(req.getRequestURI());
+            user_info = new Object(){
                 String name = user.getNickname();
                 String avatar = gravatar.getUrl(user.getEmail());
-                String logoutLink = logoutUrl;
-            };
-            context = new Object(){
-                String content = page_content;
-                String title = handlerResult.getPageTitle();
-                Object user = userInfo;
-                Mustache.Lambda navitem = navigationLambda;
             };
         } else {
             // Not logged in:
-            final String login_url = userService.createLoginURL(req.getRequestURI());
-            context = new Object(){
-                String content = page_content;
-                String title = handlerResult.getPageTitle();
-                String loginLink = login_url;
-                Mustache.Lambda navitem = navigationLambda;
-            };
+            login_logout_link = userService.createLoginURL(req.getRequestURI());
+            user_info = null;
         }
+
+        Object context = new Object(){
+            String content = page_content;
+            String title = handlerResult.getPageTitle();
+            String loginLogoutLink = login_logout_link;
+            Object user = user_info;
+            Mustache.Lambda navitem = navigation_lambda;
+        };
 
         resp.setCharacterEncoding("UTF-8");
         Template base_template = getTemplate(BASE_TEMPLATE);
@@ -131,12 +128,13 @@ public class FrontendHandler extends HttpServlet {
 
     private static String getTemplateFileContents(String template_file) throws IOException {
         // TODO File I/O is discouraged and pretty slow...
+        return Files.toString(new File(template_file), Charsets.UTF_8);/*
         if (memcache.contains(TEMPLATE_KEY+template_file)){
             return (String) memcache.get(TEMPLATE_KEY+template_file);
         } else {
             String template = Files.toString(new File(template_file), Charsets.UTF_8);
             memcache.put(TEMPLATE_KEY+template_file, template);
             return template;
-        }
+        }*/
     }
 }
