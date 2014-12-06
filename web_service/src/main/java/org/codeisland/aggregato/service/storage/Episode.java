@@ -6,6 +6,7 @@ import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.*;
 
+import javax.annotation.Nullable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -37,8 +38,10 @@ public class Episode implements Mergeable<Episode>{
     private @Load Ref<Season> season;
 
     private Episode() {} // Objectify needs this, visibility doesn't madder
-    public Episode(Season season, String title, int episode_number, int season_number, Date air_date, String description) {
-        this.air_date = AIR_FORMAT.format(air_date);
+    public Episode(Season season, String title, int episode_number, int season_number, @Nullable Date air_date, @Nullable String description) {
+        if (air_date != null){
+            this.air_date = AIR_FORMAT.format(air_date);
+        }
         this.key = season.getId()+"e"+episode_number;
         this.title = (title.isEmpty()) ? String.format("s%se%s", season_number, episode_number) : title;
         this.description = description;
@@ -48,10 +51,14 @@ public class Episode implements Mergeable<Episode>{
     }
 
     public Date getAirDate() {
-        try {
-            return AIR_FORMAT.parse(this.air_date);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
+        if (this.air_date == null){
+            return null;
+        } else {
+            try {
+                return AIR_FORMAT.parse(this.air_date);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

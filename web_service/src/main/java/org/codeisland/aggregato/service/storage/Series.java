@@ -81,6 +81,10 @@ public class Series implements Mergeable<Series>{
                 was_modified = true;
             }
         }
+        if (this.start_date == null && other.start_date != null){
+            this.start_date = other.start_date;
+            was_modified = true;
+        }
         if (!this.identifiers.equals(other.identifiers)){
             for (Map.Entry<String, String> id : other.identifiers.entrySet()) {
                 if (this.identifiers.containsKey(id.getKey())){

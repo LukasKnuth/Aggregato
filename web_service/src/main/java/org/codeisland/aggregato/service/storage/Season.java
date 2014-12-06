@@ -2,6 +2,7 @@ package org.codeisland.aggregato.service.storage;
 
 import com.google.api.server.spi.config.AnnotationBoolean;
 import com.google.api.server.spi.config.ApiResourceProperty;
+import com.google.api.server.spi.config.Nullable;
 import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.images.ImagesService;
 import com.google.appengine.api.images.ImagesServiceFactory;
@@ -41,7 +42,7 @@ public class Season implements Mergeable<Season>{
     private final @Ignore Set<Episode> modified_episodes = new HashSet<>();
 
     private Season(){}
-    public Season(Series series, String name, int season_nr, Date air_date) {
+    public Season(Series series, String name, int season_nr, @Nullable Date air_date) {
         this.key = series.getId()+"s"+season_nr;
         this.name = name;
         this.season_nr = season_nr;

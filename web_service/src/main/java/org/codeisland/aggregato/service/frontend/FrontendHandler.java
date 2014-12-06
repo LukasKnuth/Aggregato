@@ -125,7 +125,8 @@ public class FrontendHandler extends HttpServlet {
     // ------ TEMPLATE ENGINE ----
 
     private static Template getTemplate(String template_name) throws IOException {
-        return Mustache.compiler().compile(getTemplateFileContents(template_name));
+        // TODO Replace nullValue with something user-friendly...
+        return Mustache.compiler().nullValue("[null]").compile(getTemplateFileContents(template_name));
     }
 
     private static String getTemplateFileContents(String template_file) throws IOException {

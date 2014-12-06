@@ -18,6 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -167,6 +168,18 @@ public class TMDBFetcher implements SeriesFetcher {
         }
     }
 
+    /**
+     * Parse a date from the given {@code date_str}, which can be {@code null}
+     * @return the parsed data, or {@code null}, if {@code date_str} was {@code null} or empty.
+     */
+    private static Date parseDate(@Nullable String date_str) throws ParseException {
+        if (date_str == null || date_str.isEmpty()){
+            return null;
+        } else {
+            return DATE_FORMAT.parse(date_str);
+        }
+    }
+
     @Override
     public Series getSeries(String name){
         return getSeriesForId(findSeries(name), true); // Also load images!
@@ -264,7 +277,7 @@ public class TMDBFetcher implements SeriesFetcher {
                     continue;
                 }
 
-                Date season_air_date = DATE_FORMAT.parse(season.getString("air_date"));
+                Date season_air_date = parseDate(season.optString("air_date", null));
                 Season current_season = new Season(series, season.getString("name"), season.getInt("season_number"), season_air_date);
                 String poster_link = season.optString("poster_path", null);
                 if (poster_link != null) {
@@ -277,12 +290,12 @@ public class TMDBFetcher implements SeriesFetcher {
                     for (int i = 0; i < episodes.length(); i++){
                         JSONObject episode = episodes.getJSONObject(i);
 
-                        Date air_date = DATE_FORMAT.parse(episode.getString("air_date"));
+                        Date air_date = parseDate(episode.optString("air_date", null));
 
                         current_season.putEpisode(new Episode(
                                 current_season, episode.getString("name"),
                                 episode.getInt("episode_number"), episode.getInt("season_number"),
-                                air_date, episode.getString("overview")
+                                air_date, episode.optString("overview", null)
                         ));
                     }
                 }
@@ -407,7 +420,7 @@ public class TMDBFetcher implements SeriesFetcher {
             }
             JSONObject season = (JSONObject) json;
 
-            Date season_air_date = DATE_FORMAT.parse(season.getString("air_date"));
+            Date season_air_date = parseDate(season.optString("air_date", null));
             Season s = new Season(series, season.getString("name"), season.getInt("season_number"), season_air_date);
 
             if (fetch_poster){
@@ -437,7 +450,7 @@ public class TMDBFetcher implements SeriesFetcher {
             }
             JSONObject episode = (JSONObject) json;
 
-            Date air_date = DATE_FORMAT.parse(episode.getString("air_date"));
+            Date air_date = parseDate(episode.optString("air_date", null));
             return new Episode(
                     season, episode.getString("name"), episode_nr, season.getSeasonNr(),
                     air_date, episode.getString("overview")
