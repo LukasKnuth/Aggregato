@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -31,7 +32,14 @@ public class SeriesWorker extends HttpServlet {
                 filter("name_normalized", series_name.toUpperCase()).first().now();
         if (series == null){
             // Not yet in the Database, find it!
-            series = fetcher.getSeries(series_name);
+            try {
+                series = fetcher.getSeries(series_name);
+            } catch (Exception e){
+                if (e.getCause() instanceof IOException){
+                    // Only re-run the task if we have connection errors!
+                    throw e;
+                }
+            }
             if (series != null) {
                 ofy().save().entities(series).now();
             } else {
@@ -43,16 +51,26 @@ public class SeriesWorker extends HttpServlet {
             }
         }
         // Series is there, load the episodes:
-        List<Season> fetched_seasons = fetcher.getSeasons(series);
+        List<Season> fetched_seasons = Collections.emptyList();
+        try {
+            fetched_seasons = fetcher.getSeasons(series);
+        } catch (Exception e){
+            if (e.getCause() instanceof IOException){
+                // Only re-run the task if we have connection errors!
+                throw e;
+            }
+        }
         List<Season> stored_seasons = series.getSeasons();
 
         // Diff
         List<Season> new_seasons = new ArrayList<>(fetched_seasons);
         new_seasons.removeAll(stored_seasons);
-        for (Season season : new_seasons){
-            series.putSeason(season);
+        if (!new_seasons.isEmpty()){
+            for (Season season : new_seasons){
+                series.putSeason(season);
+            }
+            ofy().save().entities(series);
         }
-        ofy().save().entities(series);
 
         // All done:
         resp.setStatus(200);
