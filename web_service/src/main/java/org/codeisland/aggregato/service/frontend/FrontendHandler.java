@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 
 /**
  * @author Lukas Knuth
@@ -52,7 +53,7 @@ public class FrontendHandler extends HttpServlet {
     /**
      * Handles writing data to the user, including login information.
      */
-    private void handle(HttpServletRequest req, HttpServletResponse resp, final HandlerResult handlerResult) throws ServletException, IOException{
+    private void handle(final HttpServletRequest req, HttpServletResponse resp, final HandlerResult handlerResult) throws ServletException, IOException{
         if (handlerResult == null){
             // Not implemented...
             return;
@@ -65,6 +66,18 @@ public class FrontendHandler extends HttpServlet {
         } else {
             page_content = handlerResult.getContent();
         }
+
+       final Mustache.Lambda navigationLambda = new Mustache.Lambda() {
+            @Override
+            public void execute(Template.Fragment fragment, Writer writer) throws IOException {
+                String link = fragment.execute();
+                if (link.contains(req.getRequestURI())){
+                    writer.write(String.format("<li class=\"active\">%s</li>", link));
+                } else {
+                    writer.write(String.format("<li>%s</li>", link));
+                }
+            }
+        };
 
         Object context;
         if (req.getUserPrincipal() != null){
@@ -83,6 +96,7 @@ public class FrontendHandler extends HttpServlet {
                 String content = page_content;
                 String title = handlerResult.getPageTitle();
                 Object user = userInfo;
+                Mustache.Lambda navitem = navigationLambda;
             };
         } else {
             // Not logged in:
@@ -91,12 +105,21 @@ public class FrontendHandler extends HttpServlet {
                 String content = page_content;
                 String title = handlerResult.getPageTitle();
                 String loginLink = login_url;
+                Mustache.Lambda navitem = navigationLambda;
             };
         }
 
         resp.setCharacterEncoding("UTF-8");
         Template base_template = getTemplate(BASE_TEMPLATE);
         base_template.execute(context, resp.getWriter());
+    }
+
+    protected UserService getUserService(){
+        return userService;
+    }
+
+    protected MemcacheService getMemcache(){
+        return memcache;
     }
 
     // ------ TEMPLATE ENGINE ----

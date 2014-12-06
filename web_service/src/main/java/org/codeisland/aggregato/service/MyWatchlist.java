@@ -1,8 +1,6 @@
 package org.codeisland.aggregato.service;
 
 import com.google.appengine.api.users.User;
-import com.google.appengine.api.users.UserService;
-import com.google.appengine.api.users.UserServiceFactory;
 import org.codeisland.aggregato.service.frontend.FrontendHandler;
 import org.codeisland.aggregato.service.frontend.HandlerResult;
 import org.codeisland.aggregato.service.storage.Episode;
@@ -26,12 +24,11 @@ public class MyWatchlist extends FrontendHandler {
 
     @Override
     protected HandlerResult handleGet(HttpServletRequest req) throws ServletException, IOException {
-        final UserService userService = UserServiceFactory.getUserService();
         final String thisUrl = req.getRequestURI();
 
         if (req.getUserPrincipal() != null){
             // User is logged in!
-            final User currentUser = userService.getCurrentUser();
+            final User currentUser = getUserService().getCurrentUser();
             final Watchlist wlist = ofy().load().type(Watchlist.class).id(currentUser.getUserId()).now();
             final List<Episode> episodeList = ofy().load().type(Episode.class).list();
 
@@ -39,12 +36,12 @@ public class MyWatchlist extends FrontendHandler {
                 Set<Episode> watchlist = (wlist != null) ? wlist.getWatchlist() : Collections.<Episode>emptySet();
                 String user = currentUser.getNickname();
                 List<Episode> episodes = episodeList;
-                String logout_link = userService.createLogoutURL(thisUrl);
+                String logout_link = getUserService().createLogoutURL(thisUrl);
             });
         } else {
             // User is not logged in!
             return HandlerResult.createFromFormat("Login first",
-                    "<a href='%s'>Login first!</a>", userService.createLoginURL(thisUrl)
+                    "<a href='%s'>Login first!</a>", getUserService().createLoginURL(thisUrl)
             );
         }
     }
@@ -53,8 +50,7 @@ public class MyWatchlist extends FrontendHandler {
     protected HandlerResult handlePost(HttpServletRequest req) throws ServletException, IOException {
         if (req.getUserPrincipal() != null){
             // User is logged in!
-            UserService userService = UserServiceFactory.getUserService();
-            User currentUser = userService.getCurrentUser();
+            User currentUser = getUserService().getCurrentUser();
 
             Watchlist watchlist = ofy().load().type(Watchlist.class).id(currentUser.getUserId()).now();
             if (watchlist == null){

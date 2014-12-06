@@ -23,10 +23,10 @@
             </div>
             <div class="collapse navbar-collapse" id="navbar">
                 <ul class="nav navbar-nav">
-                    <li><a href="/news">News</a></li>
-                    <li><a href="/calendar">Calendar</a></li>
-                    <li><a href="/watchlist">Watchlist</a></li>
-                    <li><a href="/subscriptions">Subscriptions</a></li>
+                    {{#navitem}}<a href="/news">News</a>{{/navitem}}
+                    {{#navitem}}<a href="/calendar">Calendar</a>{{/navitem}}
+                    {{#navitem}}<a href="/watchlist">Watchlist</a>{{/navitem}}
+                    {{#navitem}}<a href="/subscriptions">Subscriptions</a>{{/navitem}}
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     {{#user}}
