@@ -16,7 +16,7 @@
 
     <TextView android:layout_width="fill_parent"
               android:layout_height="wrap_content"
-              android:id="@+id/series_list_entry_seasons"
+              android:id="@+id/series_list_entry_air_time"
               android:textSize="16dp"
               android:layout_marginLeft="10dp"
               android:text="sample"

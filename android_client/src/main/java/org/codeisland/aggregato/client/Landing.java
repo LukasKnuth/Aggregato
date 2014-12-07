@@ -25,6 +25,7 @@ public class Landing extends Activity {
     private ListView series_list;
     private Button send;
     private EditText name;
+    private SeriesAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +35,8 @@ public class Landing extends Activity {
         this.series_list = (ListView) this.findViewById(R.id.series_list);
         this.send = (Button) this.findViewById(R.id.send);
         this.name = (EditText) this.findViewById(R.id.name);
+        this.adapter = new SeriesAdapter(Landing.this);
+        series_list.setAdapter(adapter);
 
         this.send.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,11 +65,11 @@ public class Landing extends Activity {
         }
 
         @Override
-        protected void onPostExecute(List<Series> serieses) {
-            if (serieses != null){
-                SeriesAdapter adapter = new SeriesAdapter(Landing.this);
-                adapter.addAll(serieses);
-                series_list.setAdapter(adapter);
+        protected void onPostExecute(List<Series> shows) {
+            if (shows != null){
+                adapter.replaceAll(shows);
+            } else {
+                adapter.clearAll();
             }
         }
     }

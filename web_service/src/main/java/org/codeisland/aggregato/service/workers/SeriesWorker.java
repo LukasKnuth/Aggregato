@@ -23,6 +23,9 @@ import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
  */
 public class SeriesWorker extends HttpServlet {
 
+    // TODO Refactor this, so it will update if the series already exist.
+    // TODO When that ^ is done, make the update-cron-job schedule new tasks for every series.
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String series_name = req.getParameter("series_name");

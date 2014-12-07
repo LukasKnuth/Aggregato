@@ -10,8 +10,10 @@ import android.widget.TextView;
 import org.codeisland.aggregato.client.R;
 import org.codeisland.aggregato.tvseries.tvseries.model.Series;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -20,6 +22,7 @@ import java.util.List;
  */
 public class SeriesAdapter extends BaseAdapter implements ListAdapter {
 
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy");
     private final List<Series> seriesList = new ArrayList<Series>();
     private final Context context;
     private final LayoutInflater inflater;
@@ -29,12 +32,19 @@ public class SeriesAdapter extends BaseAdapter implements ListAdapter {
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public void add(Series series){
-        this.seriesList.add(series);
-    }
-
     public void addAll(Collection<Series> series){
         this.seriesList.addAll(series);
+        notifyDataSetChanged();
+    }
+
+    public void replaceAll(Collection<Series> series){
+        this.seriesList.clear();
+        this.addAll(series);
+    }
+
+    public void clearAll(){
+        this.seriesList.clear();
+        notifyDataSetChanged();
     }
 
     @Override
@@ -59,19 +69,29 @@ public class SeriesAdapter extends BaseAdapter implements ListAdapter {
             v = recycle;
         } else {
             v = inflater.inflate(R.layout.series_list_entry, parent, false);
+            // Create a holder, so we don't have to find the views every time:
             Holder viewHolder = new Holder();
             viewHolder.title = (TextView) v.findViewById(R.id.series_list_entry_title);
-            viewHolder.seasons = (TextView) v.findViewById(R.id.series_list_entry_seasons);
+            viewHolder.air_time = (TextView) v.findViewById(R.id.series_list_entry_air_time);
             v.setTag(viewHolder);
         }
         Holder holder = (Holder) v.getTag();
-        holder.title.setText(this.seriesList.get(position).getName());
-        holder.seasons.setText(this.seriesList.get(position).getSeasons()+" seasons");
+        Series series = this.seriesList.get(position);
+        // Set new values:
+        holder.title.setText(series.getName());
+        String air_time = "";
+        if (series.getStartDate() != null) {
+            air_time += DATE_FORMAT.format(new Date(series.getStartDate().getValue())) + " - ";
+        }
+        if (series.getEndDate() != null){
+            air_time += DATE_FORMAT.format(new Date(series.getEndDate().getValue()));
+        }
+        holder.air_time.setText(air_time);
         return v;
     }
 
     private static class Holder{
         public TextView title;
-        public TextView seasons;
+        public TextView air_time;
     }
 }
