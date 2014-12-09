@@ -3,10 +3,11 @@ package org.codeisland.aggregato.client;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.json.gson.GsonFactory;
 import org.codeisland.aggregato.client.adapter.SeriesAdapter;
@@ -23,7 +24,6 @@ import java.util.List;
 public class Landing extends Activity {
 
     private ListView series_list;
-    private Button send;
     private EditText name;
     private SeriesAdapter adapter;
 
@@ -33,15 +33,18 @@ public class Landing extends Activity {
         this.setContentView(R.layout.landing);
 
         this.series_list = (ListView) this.findViewById(R.id.series_list);
-        this.send = (Button) this.findViewById(R.id.send);
         this.name = (EditText) this.findViewById(R.id.name);
         this.adapter = new SeriesAdapter(Landing.this);
         series_list.setAdapter(adapter);
 
-        this.send.setOnClickListener(new View.OnClickListener() {
+        this.name.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public void onClick(View view) {
-                new SeriesTask().execute(name.getText().toString());
+            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                if (id == EditorInfo.IME_ACTION_SEARCH){
+                    new SeriesTask().execute(name.getText().toString());
+                    return true;
+                }
+                return false;
             }
         });
     }
