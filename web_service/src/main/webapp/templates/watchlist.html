@@ -8,13 +8,30 @@
     </select>
     <input type="submit" value="Add to Watchlist">
 </form>
-<ul>
-    {{#watchlist}}
-    <li>
-        {{title}}
-    </li>
-    {{/watchlist}}
-    {{^watchlist}}
-    <li><h3>No entries yet...</h3></li>
-    {{/watchlist}}
-</ul>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Series</th>
+            <th>#</th>
+            <th>Episode</th>
+            <th>Air Date</th>
+            <th><span class="glyphicon glyphicon-eye-open"></span></th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#watchlist}}
+        <tr>
+            <td>{{series.name}}</td>
+            <td>s{{seasonNumber}}e{{episodeNumber}}</td>
+            <td>{{title}}</td>
+            <td>{{airDate}}</td>
+            <td><button class="btn btn-sm"><span class="glyphicon glyphicon-check"></span></button></td>
+        </tr>
+        {{/watchlist}}
+        {{^watchlist}}
+        <tr>
+            <td colspan="3"><h3>No data here...</h3></td>
+        </tr>
+        {{/watchlist}}
+    </tbody>
+</table>
