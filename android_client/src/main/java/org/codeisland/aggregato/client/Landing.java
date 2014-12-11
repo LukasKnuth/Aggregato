@@ -1,17 +1,18 @@
 package org.codeisland.aggregato.client;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.json.gson.GsonFactory;
 import org.codeisland.aggregato.client.adapter.SeriesAdapter;
-import org.codeisland.aggregato.tvseries.tvseries.Tvseries;
+import org.codeisland.aggregato.client.network.Endpoint;
 import org.codeisland.aggregato.tvseries.tvseries.model.Series;
 
 import java.io.IOException;
@@ -47,20 +48,24 @@ public class Landing extends Activity {
                 return false;
             }
         });
+
+        this.series_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int pos, long id) {
+                Series series = adapter.get(pos);
+                Intent i = new Intent(Landing.this, SeriesDetail.class);
+                i.putExtras(Endpoint.bundleSeries(series));
+                startActivity(i);
+            }
+        });
     }
 
     public class SeriesTask extends AsyncTask<String, Void, List<Series>>{
 
         @Override
         protected List<Series> doInBackground(String... name) {
-            Tvseries.Builder builder = new Tvseries.Builder(
-                    AndroidHttp.newCompatibleTransport(), new GsonFactory(), null
-            );
-
-            Tvseries tvseries = builder.build();
-
             try {
-                return tvseries.seriesAPI().findSeries(name[0]).execute().getItems();
+                return Endpoint.getTvAPI().findSeries(name[0]).execute().getItems();
             } catch (IOException e) {
                 e.printStackTrace();
             }

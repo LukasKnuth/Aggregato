@@ -47,6 +47,10 @@ public class SeriesAdapter extends BaseAdapter implements ListAdapter {
         notifyDataSetChanged();
     }
 
+    public Series get(int index){
+        return this.seriesList.get(index);
+    }
+
     @Override
     public int getCount() {
         return this.seriesList.size();
