@@ -84,6 +84,7 @@ public class SeriesDetail extends Activity{
             air_time += DATE_FORMAT.format(new Date(series.getEndDate().getValue()));
         }
         air_date.setText(air_time);
+        description.setText(series.getDescription());
     }
 
     private class SeasonTask extends AsyncTask<String, Void, List<Season>>{

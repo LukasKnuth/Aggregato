@@ -58,7 +58,10 @@
                   android:textSize="16sp"
                   android:padding="10dp"
                   android:background="@android:color/background_light"
-                  android:text="asdjaskdjakl jdlkajs lkdjaijdjaljdiowilald alj dlan dlakld naln lka oiai dia lwamm laio nfa ndlna  knanf lajfl iaepnljgnlks gnkjsn göf oinafkj aöfnal knföla nlfn afnöoamef lknafl anlfn anefl nagoö"/>
+                  android:text="asdjaskdjakl jdlkajs lkdjaijdjaljdiowilald alj dlan dlakld naln lka oiai dia lwamm laio nfa ndlna  knanf lajfl iaepnljgnlks gnkjsn göf oinafkj aöfnal knföla nlfn afnöoamef lknafl anlfn anefl nagoö ankl jijdlaj ajd kadpalökd fl lf fdp pfe f, ,d, ,sdf ,se fnskdgsunf inddmslkfn sfes msfklmls mdl"
+                  android:maxLines="4"
+                  android:ellipsize="end"
+                />
 
         <TextView
                 android:layout_width="match_parent"
