@@ -32,9 +32,9 @@ public class Series implements Mergeable<Series>{
 
     private static final Logger logger = Logger.getLogger(Series.class.getName());
 
-    // TODO Also add Description to series and fetch it in TMDBFetcher!
     private @Id String key;
     private String name;
+    private String description;
     private int season_count;
     private Date start_date;
     private Date end_date;
@@ -68,6 +68,12 @@ public class Series implements Mergeable<Series>{
         if (other.season_count > this.season_count){
             this.season_count = other.season_count;
             was_modified = true;
+        }
+        if (other.description != null){
+            if (this.description == null || this.description.isEmpty()){
+                this.description = other.description;
+                was_modified = true;
+            }
         }
         if (other.end_date != null){
             if (this.end_date == null){
@@ -175,6 +181,14 @@ public class Series implements Mergeable<Series>{
 
     public String getName() {
         return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Date getStartDate() {

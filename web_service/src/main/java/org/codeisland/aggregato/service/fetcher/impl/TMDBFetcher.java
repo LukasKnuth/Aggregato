@@ -162,6 +162,7 @@ public class TMDBFetcher implements SeriesFetcher {
             Date last_air_date = parseDate(series.optString("last_air_date", null));
             Series s = new Series(series.getString("name"), series.getInt("number_of_seasons"), first_air_date);
             s.setEndDate(last_air_date);
+            s.setDescription(series.optString("overview", null));
             s.putIdentifier(IDENTIFIER_KEY, String.valueOf(tmdb_id));
 
             if (load_images){
