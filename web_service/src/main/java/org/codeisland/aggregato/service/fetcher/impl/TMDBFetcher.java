@@ -1,19 +1,15 @@
 package org.codeisland.aggregato.service.fetcher.impl;
 
-import com.google.appengine.api.appidentity.AppIdentityServiceFactory;
 import com.google.appengine.api.blobstore.BlobKey;
-import com.google.appengine.api.blobstore.BlobstoreService;
-import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.repackaged.com.google.common.primitives.Ints;
-import com.google.appengine.tools.cloudstorage.*;
-import com.google.common.io.ByteStreams;
 import org.codeisland.aggregato.service.fetcher.SeriesFetcher;
 import org.codeisland.aggregato.service.storage.Episode;
 import org.codeisland.aggregato.service.storage.Season;
 import org.codeisland.aggregato.service.storage.Series;
+import org.codeisland.aggregato.service.util.CloudStorage;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -23,11 +19,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.channels.Channels;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -48,11 +42,7 @@ public class TMDBFetcher implements SeriesFetcher {
 
     private static final String IDENTIFIER_KEY = "TMDB";
 
-    private static GcsService cloud_storage = GcsServiceFactory.createGcsService(RetryParams.getDefaultInstance());
-    private static BlobstoreService blobstore = BlobstoreServiceFactory.getBlobstoreService();
     private static MemcacheService memcache = MemcacheServiceFactory.getMemcacheService();
-
-    private static final String DEFAULT_GCS_BUCKET = AppIdentityServiceFactory.getAppIdentityService().getDefaultGcsBucketName();
 
     /**
      * <p>Load a json object from the given {@code URL}.</p>
@@ -87,61 +77,25 @@ public class TMDBFetcher implements SeriesFetcher {
         return tmdb_id;
     }
 
-    private enum ImageType{
-        POSTER("w780"), BACKDROP("w1280");
-        private final String size;
-        ImageType(String size) {
-            this.size = size;
+    private static BlobKey storeImage(Series series, String partial_url, CloudStorage.ImageType type){
+        return CloudStorage.saveImage(getFullImageUrl(partial_url, type), type, series);
+    }
+
+    private static BlobKey storeImage(Season season, String partial_url, CloudStorage.ImageType type){
+        return CloudStorage.saveImage(getFullImageUrl(partial_url, type), type, season);
+    }
+
+    private static String getFullImageUrl(String partial_url, CloudStorage.ImageType type){
+        String size = "";
+        switch (type){
+            case BACKDROP:
+                size = "w780";
+                break;
+            case POSTER:
+                size = "w1280";
+                break;
         }
-    }
-
-    private static BlobKey storeImage(Series series, String partial_url, ImageType type){
-        String image_name = String.format("series/%s_%s", series.getId(), type);
-        GcsFilename file = new GcsFilename(DEFAULT_GCS_BUCKET, image_name);
-        return storeImage(partial_url, type, file);
-    }
-
-    private static BlobKey storeImage(Season season, String partial_url, ImageType type){
-        String image_name = String.format("season/%s_%s", season.getId(), type);
-        GcsFilename file = new GcsFilename(DEFAULT_GCS_BUCKET, image_name);
-        return storeImage(partial_url, type, file);
-    }
-
-    /**
-     * <p>Stores the image at the given {@code partial_url} to the Google Cloud Storage,
-     *  returning a {@link com.google.appengine.api.blobstore.BlobKey} to serve it.</p>
-     * <p>You should normally not call this method directly, but use one of the versions
-     *  implemented to store images for a certain entity.</p>
-     * @param partial_url the partial image-url, as returned by an API call.
-     * @param type the type of image we're storing.
-     * @param file the File to be created/overridden with this image.
-     * @see #storeImage(org.codeisland.aggregato.service.storage.Season, String, org.codeisland.aggregato.service.fetcher.impl.TMDBFetcher.ImageType)
-     * @see #storeImage(org.codeisland.aggregato.service.storage.Series, String, org.codeisland.aggregato.service.fetcher.impl.TMDBFetcher.ImageType)
-     */
-    private static BlobKey storeImage(String partial_url, ImageType type, GcsFilename file){
-        String full_image_url = getImageBaseURL()+"/"+type.size+partial_url;
-
-        try {
-            GcsOutputChannel outputChannel = cloud_storage.createOrReplace(file, GcsFileOptions.getDefaultInstance());
-            URL image_url = new URL(full_image_url);
-            InputStream in = image_url.openStream();
-            try {
-                ByteStreams.copy(in, Channels.newOutputStream(outputChannel));
-                outputChannel.close();
-
-                return blobstore.createGsBlobKey(String.format(
-                        "/gs/%s/%s", file.getBucketName(), file.getObjectName()
-                ));
-            } finally {
-                if (in != null) in.close();
-            }
-        } catch (IOException e) {
-            logger.log(Level.WARNING,
-                    String.format("Couldn't get an image from the API. Maybe the size parameter changed?? URL: %s", full_image_url),
-                    e
-            );
-        }
-        return null;
+        return getImageBaseURL()+"/"+size+partial_url;
     }
 
     /**
@@ -213,11 +167,11 @@ public class TMDBFetcher implements SeriesFetcher {
             if (load_images){
                 String backdrop_link = series.optString("backdrop_path", null);
                 if (backdrop_link != null) {
-                    s.setBackdrop(storeImage(s, backdrop_link, ImageType.BACKDROP));
+                    s.setBackdrop(storeImage(s, backdrop_link, CloudStorage.ImageType.BACKDROP));
                 }
                 String poster_link = series.optString("poster_path", null);
                 if (poster_link != null) {
-                    s.setPoster(storeImage(s, poster_link, ImageType.POSTER));
+                    s.setPoster(storeImage(s, poster_link, CloudStorage.ImageType.POSTER));
                 }
             }
             return s;
@@ -283,7 +237,7 @@ public class TMDBFetcher implements SeriesFetcher {
                 Season current_season = new Season(series, season.getString("name"), season.getInt("season_number"), season_air_date);
                 String poster_link = season.optString("poster_path", null);
                 if (poster_link != null) {
-                    current_season.setPoster(storeImage(current_season, poster_link, ImageType.POSTER));
+                    current_season.setPoster(storeImage(current_season, poster_link, CloudStorage.ImageType.POSTER));
                 }
                 all_seasons.add(current_season);
 
@@ -428,7 +382,7 @@ public class TMDBFetcher implements SeriesFetcher {
             if (fetch_poster){
                 String poster_link = season.optString("poster_path", null);
                 if (poster_link != null) {
-                    s.setPoster(storeImage(s, poster_link, ImageType.POSTER));
+                    s.setPoster(storeImage(s, poster_link, CloudStorage.ImageType.POSTER));
                 }
             }
             return s;

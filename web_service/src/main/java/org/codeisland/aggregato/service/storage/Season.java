@@ -4,12 +4,10 @@ import com.google.api.server.spi.config.AnnotationBoolean;
 import com.google.api.server.spi.config.ApiResourceProperty;
 import com.google.api.server.spi.config.Nullable;
 import com.google.appengine.api.blobstore.BlobKey;
-import com.google.appengine.api.images.ImagesService;
-import com.google.appengine.api.images.ImagesServiceFactory;
-import com.google.appengine.api.images.ServingUrlOptions;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.*;
+import org.codeisland.aggregato.service.util.CloudStorage;
 
 import java.util.*;
 
@@ -26,8 +24,6 @@ public class Season implements Mergeable<Season>{
     static {
         ObjectifyService.register(Episode.class);
     }
-
-    private static final ImagesService images_service = ImagesServiceFactory.getImagesService();
 
     private @Id String key;
     private String name;
@@ -77,8 +73,7 @@ public class Season implements Mergeable<Season>{
     }
 
     public String getPosterLink(){
-        ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(this.poster);
-        return images_service.getServingUrl(options);
+        return CloudStorage.serveImage(this.poster, CloudStorage.ImageType.POSTER);
     }
 
     public Series getSeries(){
@@ -132,8 +127,9 @@ public class Season implements Mergeable<Season>{
             this.air_date = other.air_date;
             was_modified = true;
         }
-        if (other.poster != null){
-            this.poster = other.poster;
+        if (other.poster != null && !other.poster.equals(this.poster)){
+            this.setPoster(other.poster);
+            was_modified = true;
         }
         return was_modified;
     }

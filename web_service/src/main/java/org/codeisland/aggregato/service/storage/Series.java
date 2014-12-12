@@ -3,12 +3,10 @@ package org.codeisland.aggregato.service.storage;
 import com.google.api.server.spi.config.AnnotationBoolean;
 import com.google.api.server.spi.config.ApiResourceProperty;
 import com.google.appengine.api.blobstore.BlobKey;
-import com.google.appengine.api.images.ImagesService;
-import com.google.appengine.api.images.ImagesServiceFactory;
-import com.google.appengine.api.images.ServingUrlOptions;
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.*;
+import org.codeisland.aggregato.service.util.CloudStorage;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -33,8 +31,8 @@ public class Series implements Mergeable<Series>{
     public static class COMPLETE_TREE extends WITH_SEASONS{}
 
     private static final Logger logger = Logger.getLogger(Series.class.getName());
-    private static final ImagesService images_service = ImagesServiceFactory.getImagesService();
 
+    // TODO Also add Description to series and fetch it in TMDBFetcher!
     private @Id String key;
     private String name;
     private int season_count;
@@ -104,11 +102,13 @@ public class Series implements Mergeable<Series>{
                 }
             }
         }
-        if (other.poster != null){
+        if (other.poster != null && !other.poster.equals(this.poster)){
             this.setPoster(other.poster);
+            was_modified = true;
         }
-        if (other.backdrop != null){
+        if (other.backdrop != null && !other.backdrop.equals(this.backdrop)){
             this.setBackdrop(other.backdrop);
+            was_modified = true;
         }
         return was_modified;
     }
@@ -195,8 +195,7 @@ public class Series implements Mergeable<Series>{
     }
 
     public String getPosterLink(){
-        ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(this.poster);
-        return images_service.getServingUrl(options);
+        return CloudStorage.serveImage(this.poster, CloudStorage.ImageType.POSTER);
     }
 
     public void setPoster(BlobKey poster) {
@@ -208,8 +207,7 @@ public class Series implements Mergeable<Series>{
     }
 
     public String getBackdropLink(){
-        ServingUrlOptions options = ServingUrlOptions.Builder.withBlobKey(this.backdrop);
-        return images_service.getServingUrl(options);
+        return CloudStorage.serveImage(this.backdrop, CloudStorage.ImageType.BACKDROP);
     }
 
     public void setBackdrop(BlobKey backdrop) {
