@@ -4,7 +4,6 @@ import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
-import com.google.appengine.repackaged.com.google.common.primitives.Ints;
 import org.codeisland.aggregato.service.fetcher.SeriesFetcher;
 import org.codeisland.aggregato.service.storage.Episode;
 import org.codeisland.aggregato.service.storage.Season;
@@ -68,13 +67,13 @@ public class TMDBFetcher implements SeriesFetcher {
      *  querying the API.
      */
     private static int getTmdbId(Series series){
-        Integer tmdb_id = Ints.tryParse(series.optIdentifier(IDENTIFIER_KEY, ""));
-        if (tmdb_id == null){
+        try {
+            return Integer.parseInt(series.optIdentifier(IDENTIFIER_KEY, ""));
+        } catch (NumberFormatException e){
             int id = findSeries(series.getName());
             series.putIdentifier(IDENTIFIER_KEY, String.valueOf(id));
             return id;
         }
-        return tmdb_id;
     }
 
     private static BlobKey storeImage(Series series, String partial_url, CloudStorage.ImageType type){
