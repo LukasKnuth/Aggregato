@@ -4,8 +4,11 @@ import com.google.appengine.api.users.User;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.*;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
 
 /**
  * <p>A list of {@link org.codeisland.aggregato.service.storage.Episode}s that a given user
@@ -31,11 +34,8 @@ public class Watchlist {
     }
 
     public Set<Episode> getWatchlist() {
-        Set<Episode> episodes = new HashSet<>(); // TODO Cache this??
-        for (Ref<Episode> eRef : watchlist){
-            episodes.add(eRef.get());
-        }
-        return episodes;
+        Collection<Episode> wlist = ofy().load().refs(this.watchlist).values();
+        return new HashSet<>(wlist);
     }
 
     /**
