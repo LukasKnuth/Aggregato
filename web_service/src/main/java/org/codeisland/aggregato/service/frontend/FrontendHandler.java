@@ -128,13 +128,12 @@ public class FrontendHandler extends HttpServlet {
 
     private static String getTemplateFileContents(String template_file) throws IOException {
         // TODO File I/O is discouraged and pretty slow...
-        return Files.toString(new File(template_file), Charsets.UTF_8);/*
         if (memcache.contains(TEMPLATE_KEY+template_file)){
             return (String) memcache.get(TEMPLATE_KEY+template_file);
         } else {
             String template = Files.toString(new File(template_file), Charsets.UTF_8);
             memcache.put(TEMPLATE_KEY+template_file, template);
             return template;
-        }*/
+        }
     }
 }
