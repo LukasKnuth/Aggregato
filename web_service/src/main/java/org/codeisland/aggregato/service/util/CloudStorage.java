@@ -48,8 +48,8 @@ public class CloudStorage {
     */
 
     public enum ImageType{
-        POSTER("placeholder/placeholder_poster.png"),
-        BACKDROP("placeholder/placeholder_backdrop.png");
+        POSTER("placeholders/placeholder_poster.png"),
+        BACKDROP("placeholders/placeholder_backdrop.png");
 
         private final String placeholder;
         private ImageType(String placeholder){
