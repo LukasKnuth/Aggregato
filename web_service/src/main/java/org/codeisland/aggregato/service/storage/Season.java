@@ -10,6 +10,7 @@ import com.googlecode.objectify.annotation.*;
 import org.codeisland.aggregato.service.util.CloudStorage;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
 
@@ -21,6 +22,7 @@ import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
 @Cache
 public class Season implements Mergeable<Season>{
 
+    private static final Logger logger = Logger.getLogger(Season.class.getName());
     static {
         ObjectifyService.register(Episode.class);
     }
@@ -47,6 +49,13 @@ public class Season implements Mergeable<Season>{
     }
 
     public void putEpisode(Episode episode){
+        if (episode == null){
+            logger.warning(
+                    String.format("Attempted putting of a NULL-Episode on %s, %s",
+                            series.get().getName(), this.getName())
+            );
+            return;
+        }
         Ref<Episode> episodeRef = Ref.create(episode);
         int i = this.episodes.indexOf(episodeRef);
 
@@ -59,8 +68,9 @@ public class Season implements Mergeable<Season>{
             }
             this.modified_episodes.add(episode);
         } else {
-            if (this.episodes.get(i).get().merge(episode)) {
-                this.modified_episodes.add(episode);
+            Episode stored = this.episodes.get(i).get();
+            if (stored.merge(episode)) {
+                this.modified_episodes.add(stored);
             }
         }
     }

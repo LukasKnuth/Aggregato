@@ -141,6 +141,12 @@ public class Series implements Mergeable<Series>{
      * Adds the season to this series, merging it in if it already exists.
      */
     public void putSeason(Season season){
+        if (season== null){
+            logger.warning(
+                    String.format("Attempted putting of a NULL-Season on %s", this.getName())
+            );
+            return;
+        }
         Ref<Season> seasonRef = Ref.create(season);
         int i = this.seasons.indexOf(seasonRef);
         if (i == -1){
@@ -153,9 +159,10 @@ public class Series implements Mergeable<Series>{
             this.modified_seasons.add(season);
         } else {
             // Season already present:
-            if (this.seasons.get(i).get().merge(season)){
+            Season stored = this.seasons.get(i).get();
+            if (stored.merge(season)){
                 // If anything was changed during merge, schedule for update
-                this.modified_seasons.add(season);
+                this.modified_seasons.add(stored);
             }
         }
     }
