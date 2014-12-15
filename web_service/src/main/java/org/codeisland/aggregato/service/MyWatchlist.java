@@ -29,7 +29,7 @@ public class MyWatchlist extends FrontendHandler {
         if (req.getUserPrincipal() != null){
             // User is logged in!
             final User currentUser = getUserService().getCurrentUser();
-            final Watchlist wlist = ofy().load().type(Watchlist.class).id(currentUser.getUserId()).now();
+            final Watchlist wlist = ofy().load().type(Watchlist.class).id(currentUser.getEmail()).now();
             final List<Episode> episodeList = ofy().load().type(Episode.class).list();
 
             return HandlerResult.createFromTemplate("Watchlist", "templates/watchlist.html", new Object() {
@@ -52,7 +52,7 @@ public class MyWatchlist extends FrontendHandler {
             // User is logged in!
             User currentUser = getUserService().getCurrentUser();
 
-            Watchlist watchlist = ofy().load().type(Watchlist.class).id(currentUser.getUserId()).now();
+            Watchlist watchlist = ofy().load().type(Watchlist.class).id(currentUser.getEmail()).now();
             if (watchlist == null){
                 // No Watchlist yet:
                 watchlist = new Watchlist(currentUser);

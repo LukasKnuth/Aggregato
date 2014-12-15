@@ -27,7 +27,7 @@ public class MySubscriptions extends FrontendHandler {
             // User is logged in!
             final User currentUser = getUserService().getCurrentUser();
             final List<Series> userSubscriptions = ofy().load().type(Series.class).
-                    filter("subscribers", currentUser.getUserId()).list();
+                    filter("subscribers", currentUser.getEmail()).list();
             final List<Series> seriesList = ofy().load().type(Series.class).list();
 
             return HandlerResult.createFromTemplate("Subscriptions", "templates/subscriptions.html", new Object() {

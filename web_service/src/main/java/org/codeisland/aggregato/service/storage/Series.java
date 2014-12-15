@@ -175,11 +175,11 @@ public class Series implements Mergeable<Series>{
     }
 
     public void subscribe(User subscriber){
-        this.subscribers.add(subscriber.getUserId());
+        this.subscribers.add(subscriber.getEmail());
     }
 
     public void unsubscribe(User subscriber){
-        this.subscribers.remove(subscriber.getUserId());
+        this.subscribers.remove(subscriber.getEmail());
     }
 
     public List<String> getSubscribers() {

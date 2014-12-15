@@ -27,10 +27,11 @@ public class Watchlist {
 
     private Watchlist(){} // Objectify needs this, protection doesn't madder!
     public Watchlist(User user){
-        this(user.getUserId());
+        this(user.getEmail());
     }
-    public Watchlist(String user_id){
-        this.user_id = user_id;
+    public Watchlist(String user_email){
+        // TODO the user E-Mail can change, but ID doesn't work: https://code.google.com/p/googleappengine/issues/detail?id=8848
+        this.user_id = user_email;
     }
 
     public Set<Episode> getWatchlist() {

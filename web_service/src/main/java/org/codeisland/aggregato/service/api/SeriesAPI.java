@@ -67,7 +67,7 @@ public class SeriesAPI {
             throw new OAuthRequestException(OAUTH_LOGIN_FAIL);
         }
 
-        Watchlist watchlist = ofy().load().type(Watchlist.class).id(user.getUserId()).now();
+        Watchlist watchlist = ofy().load().type(Watchlist.class).id(user.getEmail()).now();
         if (watchlist == null){
             watchlist = new Watchlist(user);
         }
@@ -82,7 +82,7 @@ public class SeriesAPI {
             throw new OAuthRequestException(OAUTH_LOGIN_FAIL);
         }
 
-        Watchlist watchlist = ofy().load().type(Watchlist.class).id(user.getUserId()).now();
+        Watchlist watchlist = ofy().load().type(Watchlist.class).id(user.getEmail()).now();
         if (watchlist == null){
             watchlist = new Watchlist(user);
         }
@@ -102,7 +102,7 @@ public class SeriesAPI {
             throw new OAuthRequestException(OAUTH_LOGIN_FAIL);
         }
 
-        Watchlist watchlist = ofy().load().type(Watchlist.class).id(user.getUserId()).now();
+        Watchlist watchlist = ofy().load().type(Watchlist.class).id(user.getEmail()).now();
         if (watchlist == null){
             // Nothing to remove anything from...
             return;
@@ -117,7 +117,7 @@ public class SeriesAPI {
         if (user == null){
             return Collections.emptySet();
         }
-        Watchlist watchlist = ofy().load().type(Watchlist.class).id(user.getUserId()).now();
+        Watchlist watchlist = ofy().load().type(Watchlist.class).id(user.getEmail()).now();
         return (watchlist != null) ? watchlist.getWatchlist() : Collections.<Episode>emptySet();
     }
 
@@ -150,7 +150,7 @@ public class SeriesAPI {
             return Collections.emptyList();
         }
 
-        return ofy().load().type(Series.class).filter("subscribers", user.getUserId()).list();
+        return ofy().load().type(Series.class).filter("subscribers", user.getEmail()).list();
     }
 
     /*
