@@ -1,11 +1,10 @@
 package org.codeisland.aggregato.client;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.View;
+import android.support.v7.app.ActionBarActivity;
+import android.view.*;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -22,7 +21,7 @@ import java.util.List;
  * @author Lukas Knuth
  * @version 1.0
  */
-public class Landing extends Activity {
+public class Landing extends ActionBarActivity {
 
     private ListView series_list;
     private EditText name;
@@ -79,6 +78,24 @@ public class Landing extends Activity {
             } else {
                 adapter.clearAll();
             }
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.landing_actionbar, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.landing_actionbar_watchlist:
+                startActivity(new Intent(this, Watchlist.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <RelativeLayout android:id="@+id/watchlist_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:layout_gravity="center">
+        <TextView android:id="@+id/series_loading_seasons"
+                  android:text="Loading Watchlist..."
+                  android:textSize="16sp"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_centerInParent="true"
+                />
+        <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:layout_toRightOf="@id/series_loading_seasons"
+                android:layout_toEndOf="@id/series_loading_seasons"
+                />
+    </RelativeLayout>
+
+    <ListView android:id="@+id/watchlist_list"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:background="@color/watchlist.list.dismiss_background"
+              android:divider="@android:color/background_dark"
+              android:dividerHeight="1dp"
+            />
+
+</LinearLayout>

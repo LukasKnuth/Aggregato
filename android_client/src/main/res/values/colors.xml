@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="list_active_background">#e0e0e0</color>
+    <!-- Login Activity -->
+    <color name="login.activity.background">#007FFF</color>
+    <color name="login.activity.button_background">#FC5400</color>
+    <!-- Watchlist Activity -->
+    <color name="watchlist.list.dismiss_background">#0f9d58</color>
 </resources>

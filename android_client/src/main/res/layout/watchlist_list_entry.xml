@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="5dp"
+              android:background="@android:color/background_light"
+        >
+
+    <TextView android:id="@+id/watchlist_list_entry_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:text="Some Breaking Bad Sample Episode"
+            />
+
+    <TextView android:id="@+id/watchlist_list_entry_subtext"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/watchlist_list_entry_name"
+            android:paddingRight="15dp"
+            android:paddingLeft="15dp"
+            android:textSize="16sp"
+            android:text="Breaking Bad, s4e12"
+            />
+
+    <TextView android:id="@+id/watchlist_list_entry_air_date"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/watchlist_list_entry_subtext"
+            android:paddingRight="10dp"
+            android:paddingLeft="10dp"
+            android:textSize="16sp"
+            android:text="Aired on 22.10.2014"
+            android:gravity="center_vertical"
+            android:drawableLeft="@android:drawable/ic_menu_my_calendar"
+            android:drawableStart="@android:drawable/ic_menu_my_calendar"
+            />
+
+</RelativeLayout>

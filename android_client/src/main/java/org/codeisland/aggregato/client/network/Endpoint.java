@@ -1,9 +1,15 @@
 package org.codeisland.aggregato.client.network;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.json.gson.GsonFactory;
+import org.codeisland.aggregato.client.Login;
 import org.codeisland.aggregato.tvseries.tvseries.Tvseries;
 import org.codeisland.aggregato.tvseries.tvseries.model.Season;
 import org.codeisland.aggregato.tvseries.tvseries.model.Series;
@@ -22,6 +28,9 @@ public class Endpoint {
 
     private static final String SEASON_KEY = "__season_bundled";
     private static final String SERIES_KEY = "__series_bundled";
+    private static final String PREF_ACCOUNT_FILE = "AggregatoGoogleAccountPref";
+    private static final String PREF_ACCOUNT_NAME = "AggregatoGoogleAccountName";
+    public static final int ACCOUNT_SELECT_REQUEST = 141;
 
     private static final Tvseries tv_api;
     static {
@@ -39,6 +48,49 @@ public class Endpoint {
      */
     public static Tvseries.SeriesAPI getTvAPI(){
         return tv_api.seriesAPI();
+    }
+
+    /**
+     * <p>Get a {@link org.codeisland.aggregato.tvseries.tvseries.Tvseries.SeriesAPI} to make authenticated requests
+     *  to the Endpoint API.</p>
+     * <p>If the user is currently <b>not</b> logged in, this method will start the {@link org.codeisland.aggregato.client.Login}
+     *  -Activity to prompt the user. Your job is to override the
+     *  {@link android.app.Activity#onActivityResult(int, int, android.content.Intent)}-method and check the {@code resultCode}.</p>
+     * <p>If the {@code resultCode} is {@link android.app.Activity#RESULT_OK}, call this method again to obtain the authenticated
+     *  API. If the {@code resultCode} is {@link android.app.Activity#RESULT_CANCELED}, the user canceled the login and no
+     *  authenticated actions may be performed.</p>
+     * @return a usable authenticated API if the user is already logged in, or {@code null} if not.
+     */
+    public static Tvseries.SeriesAPI getAuthenticatedTvAPI(Activity context){
+        GoogleAccountCredential credential = GoogleAccountCredential.usingAudience(
+                context, "server:client_id:203492774524-i3okn41qjlugu6kt72ui2pdftveb25sm.apps.googleusercontent.com"
+        );
+        SharedPreferences pref = context.getSharedPreferences(PREF_ACCOUNT_FILE, Context.MODE_PRIVATE);
+        String account_name = pref.getString(PREF_ACCOUNT_NAME, null);
+        if (account_name != null){
+            // Logged in, everything is good:
+            credential.setSelectedAccountName(account_name);
+            Tvseries.Builder builder = new Tvseries.Builder(
+                    new NetHttpTransport(), new GsonFactory(), credential
+            );
+            return builder.build().seriesAPI();
+        } else {
+            // Not logged in, show Activity!
+            Intent login_activity = new Intent(context, Login.class);
+            login_activity.putExtra(Login.ACCOUNT_PICKER_KEY, credential.newChooseAccountIntent());
+            context.startActivityForResult(login_activity, ACCOUNT_SELECT_REQUEST);
+            return null;
+        }
+    }
+
+    /**
+     * <b>Normally, there is no reason to call this method yourself!.</b>
+     */
+    public static void setSelectedAccountName(String accountName, Login context){
+        SharedPreferences preferences = context.getSharedPreferences(PREF_ACCOUNT_FILE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString(PREF_ACCOUNT_NAME, accountName);
+        editor.apply();
     }
 
     // ---------------- HELPER ------------------------

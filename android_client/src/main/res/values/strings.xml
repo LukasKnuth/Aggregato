@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Aggregato</string>
+    <!-- Login Activity -->
+    <string name="activity.login.explain">You\'re trying to access a feature, which is only available to registered users. Registering an account is free and simple, just authenticate with your Google Account below.</string>
+    <string name="activity.login.important">Important: We don\'t store any passwords or personal information about you! The account is only used to remember you.</string>
+    <string name="activity.login.button">Choose Account</string>
 </resources>
