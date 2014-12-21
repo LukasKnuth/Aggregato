@@ -32,10 +32,8 @@
                   android:permission="com.google.android.c2dm.permission.SEND"
                   >
             <intent-filter>
-                <!-- Changed this from c2dm.permission to c2dm.intent -->
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <!-- Changed this to the custom permission from above -->
-                <category android:name="org.codeisland.aggregato.client.permission.C2D_MESSAGE" />
+                <category android:name="org.codeisland.aggregato.client" />
             </intent-filter>
         </receiver>
         <service android:name=".notification.NotificationService" />
