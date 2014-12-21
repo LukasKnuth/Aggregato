@@ -59,6 +59,10 @@ public class NotificationService extends IntentService {
     }
 
     private void putNotification(PendingIntent intent, String title, String text){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!preferences.getBoolean(getString(R.string.settings_key_notifications), false)){
+            return;
+        }
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setSmallIcon(R.drawable.ic_launcher)
@@ -67,7 +71,6 @@ public class NotificationService extends IntentService {
                 .setAutoCancel(true)
                 .setContentIntent(intent);
         // Set rest according to settings:
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (preferences.getBoolean(getString(R.string.settings_key_notifications_sound), true)){
             builder.setSound(Settings.System.DEFAULT_NOTIFICATION_URI);
         }
