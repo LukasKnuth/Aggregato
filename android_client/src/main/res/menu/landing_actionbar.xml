@@ -6,4 +6,9 @@
           android:icon="@android:drawable/ic_menu_today"
           android:title="Watchlist"
           app:showAsAction="always|withText"/>
+    <item android:id="@+id/landing_actionbar_settings"
+          android:icon="@android:drawable/ic_menu_manage"
+          android:title="Settings"
+          app:showAsAction="never"
+          />
 </menu>

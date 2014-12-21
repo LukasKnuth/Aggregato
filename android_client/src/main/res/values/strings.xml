@@ -1,7 +1,28 @@
 <resources>
+    <!-- Global -->
     <string name="app_name">Aggregato</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <!-- Notifications -->
+    <string name="notification.watchlist.title">New Episodes on your Watchlist</string>
+    <string name="notification.watchlist.text">New Episodes have been added to your Watchlist.</string>
     <!-- Login Activity -->
     <string name="activity.login.explain">You\'re trying to access a feature, which is only available to registered users. Registering an account is free and simple, just authenticate with your Google Account below.</string>
     <string name="activity.login.important">Important: We don\'t store any passwords or personal information about you! The account is only used to remember you.</string>
     <string name="activity.login.button">Choose Account</string>
+    <!-- Settings Keys -->
+    <string name="settings.key.notifications">receive_push_notifications</string>
+    <string name="settings.key.notifications_sound">push_notifications_sound</string>
+    <string name="settings.key.notifications_flash">push_notifications_flash</string>
+    <string name="settings.key.gcm_id">registered_gcm_id</string>
+    <!-- Settings Activity -->
+    <string name="activity.settings.notification_title">Receive Push Notifications</string>
+    <string name="activity.settings.notification_desc">Get a push-notification when new episodes are added to your watchlist.</string>
+    <string name="activity.settings.notification_sound_title">Play a sound</string>
+    <string name="activity.settings.notification_flash_title">Flash the device indicator</string>
+    <string name="activity.settings.dialog_not_supported.title">Device not supported</string>
+    <string name="activity.settings.dialog_not_supported.message">This device is not supported by Google Play Services and can therefor not receive push notifications.</string>
+    <!-- Landing Activity -->
+    <string name="activity.landing.enable_notifications_dialog_title">Enable Push Notifications?</string>
+    <string name="activity.landing.enable_notifications_dialog_message">Receive push notifications when new Episodes from subscribed Shows are added to your watchlist.</string>
 </resources>

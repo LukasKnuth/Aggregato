@@ -1,8 +1,12 @@
 package org.codeisland.aggregato.client;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.*;
 import android.view.inputmethod.EditorInfo;
@@ -57,6 +61,31 @@ public class Landing extends ActionBarActivity {
                 startActivity(i);
             }
         });
+
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!prefs.contains(getString(R.string.settings_key_gcm_id))
+                && prefs.getBoolean(getString(R.string.settings_key_notifications), true)){
+            // Not registered for Notifications yet.
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            AlertDialog dialog = builder.setCancelable(false)
+                    .setTitle(R.string.activity_landing_enable_notifications_dialog_title)
+                    .setMessage(R.string.activity_landing_enable_notifications_dialog_message)
+                    .setIcon(R.drawable.dialog_notification)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            startActivity(new Intent(Landing.this, Settings.class));
+                        }
+                    }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            prefs.edit().
+                                    putBoolean(getString(R.string.settings_key_notifications), false).
+                                    apply();
+                        }
+                    }).create();
+            dialog.show();
+        }
     }
 
     public class SeriesTask extends AsyncTask<String, Void, List<Series>>{
@@ -93,6 +122,9 @@ public class Landing extends ActionBarActivity {
         switch (item.getItemId()){
             case R.id.landing_actionbar_watchlist:
                 startActivity(new Intent(this, Watchlist.class));
+                return true;
+            case R.id.landing_actionbar_settings:
+                startActivity(new Intent(this, Settings.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="Notifications">
+        <CheckBoxPreference android:title="@string/activity.settings.notification_title"
+                            android:summary="@string/activity.settings.notification_desc"
+                            android:defaultValue="false"
+                            android:key="@string/settings.key.notifications"
+                        />
+        <CheckBoxPreference android:dependency="@string/settings.key.notifications"
+                            android:title="@string/activity.settings.notification_sound_title"
+                            android:defaultValue="true"
+                            android:key="@string/settings.key.notifications_sound"
+                        />
+        <CheckBoxPreference android:dependency="@string/settings.key.notifications"
+                            android:title="@string/activity.settings.notification_flash_title"
+                            android:defaultValue="true"
+                            android:key="@string/settings.key.notifications_flash"
+                        />
+    </PreferenceCategory>
+</PreferenceScreen>

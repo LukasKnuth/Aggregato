@@ -9,8 +9,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.json.gson.GsonFactory;
 import com.squareup.picasso.Picasso;
 import org.codeisland.aggregato.client.network.Endpoint;
 import org.codeisland.aggregato.tvseries.tvseries.Tvseries;
@@ -93,11 +91,8 @@ public class SeriesDetail extends Activity{
         protected List<Season> doInBackground(String... series) {
             String series_id = series[0];
             try {
-                Tvseries.Builder builder = new Tvseries.Builder(
-                        AndroidHttp.newCompatibleTransport(), new GsonFactory(), null
-                );
-                Tvseries api = builder.build();
-                return api.seriesAPI().listSeasons(series_id).execute().getItems();
+                Tvseries.SeriesAPI api = Endpoint.getTvAPI();
+                return api.listSeasons(series_id).execute().getItems();
             } catch (IOException e) {
                 e.printStackTrace();
             }

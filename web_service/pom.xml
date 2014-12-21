@@ -9,7 +9,6 @@
     <artifactId>web_service</artifactId>
 
     <properties>
-        <appengine.app.version>1</appengine.app.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -70,6 +69,18 @@
             <artifactId>jgravatar</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>local</groupId>
+            <artifactId>com.google.android.gcm.server</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/gcm-server.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1</version>
+        </dependency>
 
         <!-- Test Dependencies -->
         <dependency>
@@ -123,7 +134,6 @@
                         <!-- in order to interpolate version from pom into appengine-web.xml -->
                         <resource>
                             <directory>${basedir}/src/main/webapp/WEB-INF</directory>
-                            <filtering>true</filtering>
                             <targetPath>WEB-INF</targetPath>
                         </resource>
                     </webResources>

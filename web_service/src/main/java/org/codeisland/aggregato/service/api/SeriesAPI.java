@@ -1,6 +1,7 @@
 package org.codeisland.aggregato.service.api;
 
 import com.google.api.server.spi.config.Api;
+import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
 import com.google.appengine.api.oauth.OAuthRequestException;
@@ -61,6 +62,20 @@ public class SeriesAPI {
     /*
     ------------------ Watchlist -----------------
      */
+
+    @ApiMethod(httpMethod = ApiMethod.HttpMethod.POST)
+    public void registerGcmId(User user, @Named("gcm_id") String gcm_id) throws OAuthRequestException {
+        if (user == null){
+            throw new OAuthRequestException(OAUTH_LOGIN_FAIL);
+        }
+
+        Watchlist watchlist = ofy().load().type(Watchlist.class).id(user.getEmail()).now();
+        if (watchlist == null){
+            watchlist = new Watchlist(user);
+        }
+        watchlist.updateGcmId(null, gcm_id);
+        ofy().save().entities(watchlist);
+    }
 
     public void addToWatchlist(User user, @Named("episode_id") String episode_id) throws OAuthRequestException {
         if (user == null){

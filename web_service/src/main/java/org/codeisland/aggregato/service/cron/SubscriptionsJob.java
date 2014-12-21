@@ -2,6 +2,7 @@ package org.codeisland.aggregato.service.cron;
 
 import org.codeisland.aggregato.service.storage.Episode;
 import org.codeisland.aggregato.service.storage.Watchlist;
+import org.codeisland.aggregato.service.util.CloudMessaging;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -9,9 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
 
@@ -28,22 +27,29 @@ public class SubscriptionsJob extends HttpServlet {
         List<Episode> airing_today = ofy().load().type(Episode.class).
                 filter("air_date", format.format(new Date())).
                 list();
+        Map<String, Watchlist> modified_lists = new HashMap<>();
+
         for (Episode episode : airing_today){
             List<String> subscribers = episode.getSeries().getSubscribers();
             Map<String, Watchlist> subscriber_lists = ofy().load().type(Watchlist.class).ids(subscribers);
 
-            Watchlist watchlist;
             for (String subscriber_id : subscribers){
-                watchlist = subscriber_lists.get(subscriber_id);
+                Watchlist watchlist = subscriber_lists.get(subscriber_id);
                 if (watchlist == null){
                     watchlist = new Watchlist(subscriber_id);
                     subscriber_lists.put(subscriber_id, watchlist);
                 }
-                watchlist.addItem(episode);
+                if (watchlist.addItem(episode)){
+                    modified_lists.put(watchlist.getId(), watchlist);
+                }
             }
 
             ofy().save().entities(subscriber_lists.values());
         }
 
+        Collection<Watchlist> updated = CloudMessaging.notifyWatchlistUpdated(modified_lists.values());
+        if (updated.size() > 0){
+            ofy().save().entities(updated);
+        }
     }
 }
