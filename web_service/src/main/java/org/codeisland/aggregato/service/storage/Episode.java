@@ -94,8 +94,7 @@ public class Episode implements Mergeable<Episode>{
     @Override
     public boolean merge(Episode other) {
         boolean was_modified = false;
-        // TODO What to do here, if we're not sure?? (Admin tool for review?)
-        if (other.air_date != null && this.air_date == null){
+        if (other.air_date != null && !other.air_date.equals(this.air_date)){
             this.air_date = other.air_date;
             was_modified = true;
         }

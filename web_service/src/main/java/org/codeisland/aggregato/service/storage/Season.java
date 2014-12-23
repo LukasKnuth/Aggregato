@@ -133,7 +133,7 @@ public class Season implements Mergeable<Season>{
             this.name = other.name;
             was_modified = true;
         }
-        if (this.air_date == null && other.air_date != null){
+        if (other.air_date != null && !other.air_date.equals(this.air_date)){
             this.air_date = other.air_date;
             was_modified = true;
         }
