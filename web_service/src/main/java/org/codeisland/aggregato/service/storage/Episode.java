@@ -9,6 +9,7 @@ import com.googlecode.objectify.annotation.*;
 import javax.annotation.Nullable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 
@@ -25,7 +26,7 @@ public class Episode implements Mergeable<Episode>{
         // ObjectifyProxy hasn't been used yet!
         ObjectifyService.register(Series.class);
     }
-    private static final SimpleDateFormat AIR_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+    public static final SimpleDateFormat AIR_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 
     private @Id String key;
     private @Index String air_date;
@@ -114,6 +115,19 @@ public class Episode implements Mergeable<Episode>{
         }
         return was_modified;
     }
+
+    public static Comparator<Episode> BY_DATE = new Comparator<Episode>() {
+        @Override
+        public int compare(Episode e1, Episode e2) {
+            if (e1.getAirDate().after(e2.getAirDate())){
+                return 1;
+            } else if (e2.getAirDate().after(e1.getAirDate())){
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    };
 
     @Override
     public String toString() {

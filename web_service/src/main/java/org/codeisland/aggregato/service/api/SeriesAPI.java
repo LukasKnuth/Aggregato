@@ -8,10 +8,13 @@ import com.google.appengine.api.oauth.OAuthRequestException;
 import com.google.appengine.api.users.User;
 import org.codeisland.aggregato.service.storage.*;
 import org.codeisland.aggregato.service.workers.QueueManager;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.joda.time.MutableDateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
 
@@ -56,6 +59,90 @@ public class SeriesAPI {
             return show.getSeasons();
         } else {
             return Collections.emptyList();
+        }
+    }
+
+    /*
+    ------------------ Calendar ------------------
+     */
+
+    @ApiMethod(path = "calendar/upcoming")
+    public List<Episode> getUpcomingEpisodes(User user) throws OAuthRequestException {
+        MutableDateTime start = new MutableDateTime();
+        start.addDays(-1); // Include today!
+        start.setTime(0, 0, 0, 0);
+        Date start_date = start.toDate();
+        if (user == null){
+            // Not logged in, show 10 episodes airing next:
+            String date_str = Episode.AIR_FORMAT.format(start_date);
+            return ofy().load().type(Episode.class).
+                    filter("air_date >=", date_str).
+                    limit(10).order("air_date").list();
+        } else {
+            // Logged in, use episodes from subscribed shows:
+            List<Episode> upcoming = new ArrayList<>();
+            List<Series> subscriptions = ofy().load().group(Series.COMPLETE_TREE.class).
+                    type(Series.class).filter("subscribers", user.getEmail()).
+                    list();
+
+            for (Series sub : subscriptions) {
+                List<Season> seasons = sub.getSeasons();
+                Season current_season = seasons.get(seasons.size()-1);
+                for (Episode episode : current_season.getEpisodes()) {
+                    if (episode.getAirDate().after(start_date)){
+                        upcoming.add(episode);
+                        break;
+                    }
+                }
+            }
+
+            // Order the episodes by date:
+            Collections.sort(upcoming, Episode.BY_DATE);
+
+            return upcoming;
+        }
+    }
+
+    @ApiMethod(path = "calendar/month")
+    public List<Episode> episodesInMonth(User user, @Named("month") Date month_date) throws OAuthRequestException {
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM");
+        DateTime start = new DateTime(month_date).dayOfMonth().setCopy(1);
+        DateTime end = start.monthOfYear().addToCopy(1);
+        Interval month = new Interval(start, end);
+
+        if (user == null){
+            // Not logged in, show all Episodes from that month:
+            return ofy().load().type(Episode.class).
+                    filter("air_date >=", start.toString(formatter)).
+                    filter("air_date <", end.toString(formatter)).
+                    order("air_date").list();
+        } else {
+            // Logged in, show only episodes from subscribed shows:
+            List<Episode> month_episodes = new LinkedList<>();
+            List<Series> subscriptions = ofy().load().group(Series.COMPLETE_TREE.class).
+                    type(Series.class).filter("subscribers", user.getEmail()).
+                    list();
+
+            DateTime air_date_time;
+            DateTime episode_air_date;
+            for (Series sub : subscriptions) {
+                for (Season season : sub.getSeasons()) {
+                    air_date_time = new DateTime(season.getAirDate());
+                    if (air_date_time.isBefore(end)){
+                        for (Episode episode : season.getEpisodes()) {
+                            episode_air_date = new DateTime(episode.getAirDate());
+                            if (month.contains(episode_air_date)){
+                                month_episodes.add(episode);
+                            }
+                        }
+
+                    }
+                }
+
+            }
+
+            Collections.sort(month_episodes, Episode.BY_DATE);
+            return month_episodes;
         }
     }
 
