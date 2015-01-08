@@ -43,7 +43,11 @@ public class Episode implements Mergeable<Episode>{
             this.air_date = AIR_FORMAT.format(air_date);
         }
         this.key = season.getId()+"e"+episode_number;
-        this.title = (title.isEmpty()) ? String.format("s%se%s", season_number, episode_number) : title;
+        if (title == null || title.isEmpty()){
+            this.title = String.format("s%se%s", season_number, episode_number);
+        } else {
+            this.title = title;
+        }
         this.description = description;
         this.episode_number = episode_number;
         this.season_number = season_number;

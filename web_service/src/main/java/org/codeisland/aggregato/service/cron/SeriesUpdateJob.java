@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
 
@@ -21,6 +23,8 @@ import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
  */
 public class SeriesUpdateJob extends HttpServlet {
 
+    private static final Logger logger = Logger.getLogger(SeriesUpdateJob.class.getName());
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         SeriesFetcher fetcher = FetchManager.INSTANCE;
@@ -28,10 +32,14 @@ public class SeriesUpdateJob extends HttpServlet {
         List<Series> changed_series = new LinkedList<>();
 
         for (Series s : series){
-           if (fetcher.update(s)){
-                // Only if something changed!
-                changed_series.add(s);
-           }
+            try {
+                if (fetcher.update(s)) {
+                    // Only if something changed!
+                    changed_series.add(s);
+                }
+            } catch (Exception e){
+                logger.log(Level.SEVERE, String.format("There was a problem updating %s", series), e);
+            }
         }
 
         // Save all changes

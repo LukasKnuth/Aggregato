@@ -318,10 +318,8 @@ public class TMDBFetcher implements SeriesFetcher {
                             // If this season is already in the Database and has no Poster, fetch it!
                             fetch_poster = old_season.getPoster() == null;
                         }
-                        changed_seasons.put(
-                                season_change.getInt("season_id"),
-                                getSeason(series, season_nr, fetch_poster)
-                        );
+                        Season changed_season = getSeason(series, season_nr, fetch_poster);
+                        changed_seasons.put(season_change.getInt("season_id"), changed_season);
                     }
 
                 }
@@ -408,8 +406,8 @@ public class TMDBFetcher implements SeriesFetcher {
 
             Date air_date = parseDate(episode.optString("air_date", null));
             return new Episode(
-                    season, episode.getString("name"), episode_nr, season.getSeasonNr(),
-                    air_date, episode.getString("overview")
+                    season, episode.optString("name", null), episode_nr, season.getSeasonNr(),
+                    air_date, episode.optString("overview", null)
             );
         } catch (IOException e) {
             throw new RuntimeException(e);

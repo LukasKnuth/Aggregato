@@ -258,6 +258,6 @@ public class Series implements Mergeable<Series>{
 
     @Override
     public String toString() {
-        return String.format("Series '%s' has %s seasons", name, season_count);
+        return String.format("'%s' (ID=%s)", name, key);
     }
 }
