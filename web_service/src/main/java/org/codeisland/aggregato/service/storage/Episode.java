@@ -76,6 +76,11 @@ public class Episode implements Mergeable<Episode>{
         return season.get().getSeries();
     }
 
+    public String getSeriesName(){
+        // TODO This causes the Series to be loaded, which costs extra. Better way??
+        return this.getSeries().getName();
+    }
+
     public Season getSeason(){
         return season.get();
     }
