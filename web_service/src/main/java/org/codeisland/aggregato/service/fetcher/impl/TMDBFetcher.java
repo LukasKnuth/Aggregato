@@ -275,7 +275,7 @@ public class TMDBFetcher implements SeriesFetcher {
         if (!changedSeasons.isEmpty()){
             for (Map.Entry<Integer, Season> season : changedSeasons.entrySet()) {
                 // Now, check the episodes:
-                List<Episode> changed_episodes = getChangedEpisodes(season.getValue(), season.getKey(), series_tmdb_id);
+                List<Episode> changed_episodes = getChangedEpisodes(series, season.getValue(), season.getKey());
                 for (Episode episode : changed_episodes) {
                     season.getValue().putEpisode(episode);
                 }
@@ -293,7 +293,12 @@ public class TMDBFetcher implements SeriesFetcher {
     private static Map<Integer, Season> getChangedSeasons(Series series){
         Map<Integer, Season> changed_seasons = new HashMap<>();
         try {
-            URL url = new URL(String.format(BASE_URL + API_VERSION + "/tv/%s/changes?api_key=" + API_KEY, getTmdbId(series)));
+            String start_date = DATE_FORMAT.format(series.getLastUpdated());
+            URL url = new URL(
+                    String.format("%s/tv/%s/changes?api_key=%s&start_date=%s",
+                            (BASE_URL + API_VERSION), getTmdbId(series), API_KEY, start_date
+                    )
+            );
             Object resp = jsonFromUrl(url);
             if (resp instanceof JSONArray) {
                 throw new RuntimeException("Expected a JSON Object, got an array...");
@@ -330,16 +335,20 @@ public class TMDBFetcher implements SeriesFetcher {
         return changed_seasons;
     }
 
-    private static List<Episode> getChangedEpisodes(Season season, int season_tmdb_id, int series_tmdb_id){
+    private static List<Episode> getChangedEpisodes(Series series, Season season, int season_tmdb_id){
         List<Episode> changed_episodes = new ArrayList<>();
         try {
-            URL url = new URL(String.format(
-                    String.format(BASE_URL + API_VERSION + "/tv/season/%s/changes?api_key=" + API_KEY, season_tmdb_id)
-            ));
+            String start_date = DATE_FORMAT.format(series.getLastUpdated());
+            URL url = new URL(
+                    String.format("%s/tv/season/%s/changes?api_key=%s&start_date=%s",
+                            (BASE_URL + API_VERSION), season_tmdb_id, API_KEY, start_date
+                    )
+            );
             Object json = jsonFromUrl(url);
             if (!(json instanceof JSONObject)){
                 throw new RuntimeException("Expected a JSON Object...");
             }
+            Set<Integer> changed_episode_nrs = new HashSet<>();
             JSONArray changes = ((JSONObject) json).getJSONArray("changes");
             JSONObject change;
             for (int i = 0; i < changes.length(); i++){
@@ -349,12 +358,15 @@ public class TMDBFetcher implements SeriesFetcher {
                     JSONArray items = change.getJSONArray("items");
                     for (int j = 0; j < items.length(); j++){
                         JSONObject episode_value = items.getJSONObject(j).getJSONObject("value");
-                        Episode episode = getEpisode(
-                                series_tmdb_id, season, episode_value.getInt("episode_number")
-                        );
-                        changed_episodes.add(episode);
+                        changed_episode_nrs.add(episode_value.getInt("episode_number"));
                     }
                 }
+            }
+            // Load the changed episodes:
+            for (Integer episode_nr : changed_episode_nrs) {
+                changed_episodes.add(
+                        getEpisode(getTmdbId(series), season, episode_nr)
+                );
             }
         } catch (IOException e) {
             e.printStackTrace();

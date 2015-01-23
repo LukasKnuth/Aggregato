@@ -49,28 +49,32 @@ public class Season implements Mergeable<Season>{
     }
 
     public void putEpisode(Episode episode){
-        if (episode == null){
-            logger.warning(
-                    String.format("Attempted putting of a NULL-Episode on %s, %s",
-                            series.get().getName(), this.getName())
-            );
-            return;
-        }
         Ref<Episode> episodeRef = Ref.create(episode);
         int i = this.episodes.indexOf(episodeRef);
 
         if (i == -1){
             // New Episode:
             if (episode.getEpisodeNumber() >= episodes.size()){
-                episodes.add(Ref.create(episode));
+                episodes.add(episodeRef);
             } else {
-                episodes.add(episode.getEpisodeNumber(), Ref.create(episode));
+                episodes.add(episode.getEpisodeNumber(), episodeRef);
             }
             this.modified_episodes.add(episode);
         } else {
             Episode stored = this.episodes.get(i).get();
-            if (stored.merge(episode)) {
-                this.modified_episodes.add(stored);
+            if (stored != null){
+                // Episode was found in DB, merge it:
+                if (stored.merge(episode)) {
+                    this.modified_episodes.add(stored);
+                }
+            } else {
+                // Episode wasn't found in DB (maybe it's new since the last update), check the modified episodes:
+                for (Episode modified_episode : this.modified_episodes) {
+                    if (modified_episode.equals(episode)) {
+                        modified_episode.merge(episode);
+                        break;
+                    }
+                }
             }
         }
     }
@@ -112,6 +116,10 @@ public class Season implements Mergeable<Season>{
     public List<Episode> getEpisodes() {
         Collection<Episode> eps = ofy().load().refs(this.episodes).values();
         return new ArrayList<>(eps);
+    }
+
+    Collection<Episode> getModifiedEpisodes(){
+        return this.modified_episodes;
     }
 
     public BlobKey getPoster() {

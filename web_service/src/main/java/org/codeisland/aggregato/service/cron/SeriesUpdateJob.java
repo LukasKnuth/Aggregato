@@ -38,7 +38,7 @@ public class SeriesUpdateJob extends HttpServlet {
                     changed_series.add(s);
                 }
             } catch (Exception e){
-                logger.log(Level.SEVERE, String.format("There was a problem updating %s", series), e);
+                logger.log(Level.SEVERE, String.format("There was a problem updating %s", s), e);
             }
         }
 

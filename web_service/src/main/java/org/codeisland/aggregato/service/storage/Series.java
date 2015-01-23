@@ -41,6 +41,7 @@ public class Series implements Mergeable<Series>{
     private @Index String name_normalized; // We need this for case-insensitive filtering
     private Map<String, String> identifiers = new HashMap<>();
 
+    private @ApiResourceProperty(ignored = AnnotationBoolean.TRUE) Date last_update;
     private @ApiResourceProperty(ignored = AnnotationBoolean.TRUE) BlobKey poster;
     private @ApiResourceProperty(ignored = AnnotationBoolean.TRUE) BlobKey backdrop;
     @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
@@ -60,6 +61,7 @@ public class Series implements Mergeable<Series>{
         this.name_normalized = name.toUpperCase();
         this.season_count = season_count;
         this.start_date = start_date;
+        this.last_update = new Date();
     }
 
     @Override
@@ -138,15 +140,28 @@ public class Series implements Mergeable<Series>{
     }
 
     /**
+     * @return the latest season of this show or {@code null}, if there are no seasons yet.
+     */
+    @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
+    public Season getLatestSeason(){
+        Collection<Season> sns = ofy().load().refs(this.seasons).values();
+        int latest_season = -1;
+        for (Season season : sns) {
+            if (season.getEpisodes().size() > 0 && season.getSeasonNr() > latest_season){
+                latest_season = season.getSeasonNr();
+            }
+        }
+        if (latest_season == -1 || latest_season >= this.seasons.size()){
+            return null;
+        } else {
+            return this.getSeason(latest_season);
+        }
+    }
+
+    /**
      * Adds the season to this series, merging it in if it already exists.
      */
     public void putSeason(Season season){
-        if (season== null){
-            logger.warning(
-                    String.format("Attempted putting of a NULL-Season on %s", this.getName())
-            );
-            return;
-        }
         Ref<Season> seasonRef = Ref.create(season);
         int i = this.seasons.indexOf(seasonRef);
         if (i == -1){
@@ -160,6 +175,10 @@ public class Series implements Mergeable<Series>{
         } else {
             // Season already present:
             Season stored = this.seasons.get(i).get();
+            // Put the episodes first:
+            for (Episode episode : season.getModifiedEpisodes()) {
+                stored.putEpisode(episode);
+            }
             if (stored.merge(season)){
                 // If anything was changed during merge, schedule for update
                 this.modified_seasons.add(stored);
@@ -171,6 +190,23 @@ public class Series implements Mergeable<Series>{
     private void saveSeasons(){
         if (this.modified_seasons.size() != 0){
             ofy().save().entities(this.modified_seasons);
+            // A season or an episode or both was updated:
+            this.last_update = new Date();
+        }
+    }
+
+    public Date getLastUpdated(){
+        if (this.last_update == null){
+            // When migrating the old DB content...
+            Season latest = this.getLatestSeason();
+            if (latest != null){
+                return latest.getAirDate();
+            } else {
+                // No seasons...
+                return this.getStartDate();
+            }
+        } else {
+            return this.last_update;
         }
     }
 
