@@ -84,12 +84,33 @@ public class Endpoint {
     }
 
     /**
+     * Checks if the User is logged in or not.
+     * @return True if logged in, else False.
+     */
+    public static boolean getLoginStatus(Activity context) {
+        SharedPreferences pref = context.getSharedPreferences(PREF_ACCOUNT_FILE, Context.MODE_PRIVATE);
+        String account_name = pref.getString(PREF_ACCOUNT_NAME, null);
+        return (account_name != null);
+    }
+
+    /**
      * <b>Normally, there is no reason to call this method yourself!.</b>
      */
     public static void setSelectedAccountName(String accountName, Login context){
         SharedPreferences preferences = context.getSharedPreferences(PREF_ACCOUNT_FILE, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(PREF_ACCOUNT_NAME, accountName);
+        editor.apply();
+    }
+
+    /**
+     * Logout...
+     * @param context
+     */
+    public static void clearAccountName(Activity context){
+        SharedPreferences preferences = context.getSharedPreferences(PREF_ACCOUNT_FILE, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.remove(PREF_ACCOUNT_NAME);
         editor.apply();
     }
 

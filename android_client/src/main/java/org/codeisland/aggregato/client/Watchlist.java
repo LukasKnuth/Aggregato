@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.ListView;
@@ -32,6 +33,10 @@ public class Watchlist extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.watchlist_page);
+
+        // Set up ap ActionBar
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle(getString(R.string.watchlist));
 
         ListView watchlist = (ListView) findViewById(R.id.watchlist_list);
         this.adapter = new WatchlistAdapter(this);

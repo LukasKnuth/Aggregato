@@ -1,28 +1,67 @@
 <resources>
+
     <!-- Global -->
     <string name="app_name">Aggregato</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="login">Login</string>
+    <string name="logout">Logout</string>
+    <string name="close">Close</string>
+    <string name="watchlist">Watchlist</string>
+    <string name="search">Search</string>
+    <string name="reload">Reload</string>
+    <string name="settings">Settings</string>
+    <string name="episode">Episode</string>
+    <string name="episodes">Episodes</string>
+
     <!-- Notifications -->
-    <string name="notification.watchlist.title">New Episodes on your Watchlist</string>
-    <string name="notification.watchlist.text">New Episodes have been added to your Watchlist.</string>
+    <string name="notification.watchlist.title">New episodes on your watchlist</string>
+    <string name="notification.watchlist.text">New episodes have been added to your watchlist.</string>
+
+    <!-- Upcoming Activity -->
+    <string name="activity.upcoming.title">Upcoming</string>
+    <string name="activity.upcoming.tab_subscribed">My series</string>
+    <string name="activity.upcoming.tab_all">All series</string>
+    <string name="activity.upcoming.login_info">Login to filter the list for your subscribed series.</string>
+    <string name="activity.upcoming.list_empty_subscribed">No upcoming episodes found, switch to all series or use the search to find new ones for your watchlist.</string>
+    <string name="activity.upcoming.list_empty_all">No upcoming episodes found, use the search to find a specific series.</string>
+    <string name="activity.upcoming.dialog_episode_description_title">Episode description</string>
+    <string name="activity.upcoming.no_episode_description">No description available.</string>
+    <string name="activity.upcoming.logout_dialog_title">Are you sure?</string>
+
+    <!-- Series details Activity -->
+    <string name="activity.series_detail.title">Series details</string>
+    <string name="activity.series_detail.seasons">Seasons</string>
+    <string name="activity.series_detail.button_subscribe">Subscribe series</string>
+    <string name="activity.series_detail.error_subscription_only_with_login">The subscription is only available, if you\'re logged in.</string>
+    <string name="activity.series_detail.subscribe_ok">Successfully subscribed</string>
+    <string name="activity.series_detail.subscribe_failed">Subscribe failed</string>
+    <string name="activity.series_detail.dialog_add_to_watchlist_title">Add to watchlist?</string>
+    <string name="activity.series_detail.dialog_add_to_watchlist_text">Add all episodes to your watchlist?</string>
+    <string name="activity.series_detail.add_to_watchlist_ok">All episodes were successfully added to your watchlist</string>
+    <string name="activity.series_detail.add_to_watchlist_failed">Adding episodes to your watchlist failed</string>
+
     <!-- Login Activity -->
     <string name="activity.login.explain">You\'re trying to access a feature, which is only available to registered users. Registering an account is free and simple, just authenticate with your Google Account below.</string>
     <string name="activity.login.important">Important: We don\'t store any passwords or personal information about you! The account is only used to remember you.</string>
-    <string name="activity.login.button">Choose Account</string>
+    <string name="activity.login.button">Choose account</string>
+
+    <!-- Settings Activity -->
+    <string name="activity.settings.notification_title">Receive push notifications</string>
+    <string name="activity.settings.notification_desc">Get a push notification when new episodes are added to your watchlist.</string>
+    <string name="activity.settings.notification_sound_title">Play a sound</string>
+    <string name="activity.settings.notification_flash_title">Flash the device indicator</string>
+    <string name="activity.settings.dialog_not_supported.title">Device not supported</string>
+    <string name="activity.settings.dialog_not_supported.message">This device is not supported by Google Play Services and can therefor not receive push notifications.</string>
+    <string name="activity.settings.process_dialog.registering_push_notifications">Registering you for push notifications…</string>
+    <string name="activity.settings.toast.notifications_for_registered_only">Notifications only work for registered users.</string>
+    <string name="activity.settings.toast.registration_successful">Registration successful.</string>
+    <string name="activity.settings.toast.registration_failed">Registration failed. Please try again later…</string>
+
     <!-- Settings Keys -->
     <string name="settings.key.notifications">receive_push_notifications</string>
     <string name="settings.key.notifications_sound">push_notifications_sound</string>
     <string name="settings.key.notifications_flash">push_notifications_flash</string>
     <string name="settings.key.gcm_id">registered_gcm_id</string>
-    <!-- Settings Activity -->
-    <string name="activity.settings.notification_title">Receive Push Notifications</string>
-    <string name="activity.settings.notification_desc">Get a push-notification when new episodes are added to your watchlist.</string>
-    <string name="activity.settings.notification_sound_title">Play a sound</string>
-    <string name="activity.settings.notification_flash_title">Flash the device indicator</string>
-    <string name="activity.settings.dialog_not_supported.title">Device not supported</string>
-    <string name="activity.settings.dialog_not_supported.message">This device is not supported by Google Play Services and can therefor not receive push notifications.</string>
-    <!-- Landing Activity -->
-    <string name="activity.landing.enable_notifications_dialog_title">Enable Push Notifications?</string>
-    <string name="activity.landing.enable_notifications_dialog_message">Receive push notifications when new Episodes from subscribed Shows are added to your watchlist.</string>
+
 </resources>

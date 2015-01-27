@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.*;
 import android.view.inputmethod.EditorInfo;
@@ -25,7 +26,7 @@ import java.util.List;
  * @author Lukas Knuth
  * @version 1.0
  */
-public class Landing extends ActionBarActivity {
+public class SearchSeries extends ActionBarActivity {
 
     private ListView series_list;
     private EditText name;
@@ -34,11 +35,15 @@ public class Landing extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.setContentView(R.layout.landing);
+        this.setContentView(R.layout.search_series);
+
+        // Set up ap ActionBar
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle(getString(R.string.search));
 
         this.series_list = (ListView) this.findViewById(R.id.series_list);
         this.name = (EditText) this.findViewById(R.id.name);
-        this.adapter = new SeriesAdapter(Landing.this);
+        this.adapter = new SeriesAdapter(SearchSeries.this);
         series_list.setAdapter(adapter);
 
         this.name.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -56,36 +61,11 @@ public class Landing extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int pos, long id) {
                 Series series = adapter.get(pos);
-                Intent i = new Intent(Landing.this, SeriesDetail.class);
+                Intent i = new Intent(SearchSeries.this, SeriesDetail.class);
                 i.putExtras(Endpoint.bundleSeries(series));
                 startActivity(i);
             }
         });
-
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if (!prefs.contains(getString(R.string.settings_key_gcm_id))
-                && prefs.getBoolean(getString(R.string.settings_key_notifications), true)){
-            // Not registered for Notifications yet.
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            AlertDialog dialog = builder.setCancelable(false)
-                    .setTitle(R.string.activity_landing_enable_notifications_dialog_title)
-                    .setMessage(R.string.activity_landing_enable_notifications_dialog_message)
-                    .setIcon(R.drawable.dialog_notification)
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            startActivity(new Intent(Landing.this, Settings.class));
-                        }
-                    }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            prefs.edit().
-                                    putBoolean(getString(R.string.settings_key_notifications), false).
-                                    apply();
-                        }
-                    }).create();
-            dialog.show();
-        }
     }
 
     public class SeriesTask extends AsyncTask<String, Void, List<Series>>{
@@ -110,24 +90,4 @@ public class Landing extends ActionBarActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.landing_actionbar, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.landing_actionbar_watchlist:
-                startActivity(new Intent(this, Watchlist.class));
-                return true;
-            case R.id.landing_actionbar_settings:
-                startActivity(new Intent(this, Settings.class));
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 }

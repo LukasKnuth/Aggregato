@@ -4,6 +4,9 @@ In a terminal, do:
 
     # Locate the real path here...
     cd Aggregato/web_service
+    # Compile (if necessary)
+    mvn clean install
+    # Generate lib
     mvn appengine:endpoints_get_client_lib
     # The last part depends on the API name
     cd target/endpoints-client-libs/tvseries

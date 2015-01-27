@@ -11,6 +11,8 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NavUtils;
+import android.view.MenuItem;
 import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -25,6 +27,7 @@ import java.io.IOException;
  * @version 1.0
  */
 public class Settings extends PreferenceActivity {
+    // TODO: Add own Toolbar to implement back navigation by tapping on "< Settings" in title.
 
     private final static int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private final static String SENDER_ID = "203492774524";
@@ -33,7 +36,7 @@ public class Settings extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.preferences);
+        addPreferencesFromResource(R.xml.preferences); // TODO: Deprecated, use PreferenceFragments
         notification_pref = (CheckBoxPreference) findPreference(getString(R.string.settings_key_notifications));
         notification_pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
@@ -96,7 +99,7 @@ public class Settings extends PreferenceActivity {
 
         if (requestCode == Endpoint.ACCOUNT_SELECT_REQUEST){
             if (resultCode == RESULT_CANCELED){
-                Toast.makeText(this, "Notifications only work for registered users.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getString(R.string.activity_settings_toast_notifications_for_registered_only), Toast.LENGTH_LONG).show();
             } else if (resultCode == RESULT_OK){
                 Tvseries.SeriesAPI api = Endpoint.getAuthenticatedTvAPI(this);
                 assert api != null;
@@ -114,7 +117,7 @@ public class Settings extends PreferenceActivity {
             super.onPreExecute();
             progressDialog = new ProgressDialog(Settings.this);
             progressDialog.setIndeterminate(true);
-            progressDialog.setMessage("Registering you for Push notifications...");
+            progressDialog.setMessage(getString(R.string.activity_settings_process_dialog_registering_push_notifications));
             progressDialog.setCancelable(false);
             progressDialog.show();
         }
@@ -126,11 +129,11 @@ public class Settings extends PreferenceActivity {
                 progressDialog.dismiss();
             }
             if (success){
-                Toast.makeText(Settings.this, "Registration Successful.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Settings.this, getString(R.string.activity_settings_toast_registration_successful), Toast.LENGTH_SHORT).show();
                 notification_pref.setChecked(true);
             } else {
                 // TODO Do this automatically?
-                Toast.makeText(Settings.this, "Registration Failed. Please try again later...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Settings.this, getString(R.string.activity_settings_toast_registration_failed), Toast.LENGTH_SHORT).show();
                 notification_pref.setChecked(false);
             }
         }
@@ -148,6 +151,17 @@ public class Settings extends PreferenceActivity {
                 e.printStackTrace();
                 return false;
             }
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }

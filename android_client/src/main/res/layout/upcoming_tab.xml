@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Displayed while loading list content -->
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/upcoming_tab_progress"
+        android:layout_gravity="center_horizontal"
+        android:visibility="visible"/>
+
+    <!-- Displayed for logged out users -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/login.activity.background"
+        android:baselineAligned="true"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:id="@+id/upcoming_tab_login_info"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:text="@string/activity.upcoming.login_info"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"/>
+
+        <Button
+            android:id="@+id/upcoming_tab_login_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:text="@string/login"
+            android:textColor="@android:color/white"
+            android:background="@drawable/login_button"
+            android:visibility="visible"
+            android:textStyle="bold"/>
+    </LinearLayout>
+
+    <!-- List to show episodes -->
+    <ListView
+        android:id="@+id/upcoming_tab_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"/>
+
+    <!-- Placeholder for empty list -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/upcoming_tab_list_empty"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:gravity="center"
+            android:id="@+id/upcoming_tab_list_empty_text"
+            android:layout_margin="25dp"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search"
+            android:drawableStart="@drawable/ic_action_search"
+            android:drawableLeft="@drawable/ic_action_search"
+            android:id="@+id/upcoming_tab_list_empty_search_button"
+            android:layout_gravity="center_horizontal"/>
+    </LinearLayout>
+</LinearLayout>

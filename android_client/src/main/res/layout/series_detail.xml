@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- Displayed while loading series data -->
+    <ProgressBar
+        android:id="@+id/series_detail_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"
+        />
+
+    <!-- Main view for series details -->
+    <com.nirhart.parallaxscroll.views.ParallaxScrollView
+        android:id="@+id/series_detail_parallax"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:parallax_factor="1.5">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:orientation="vertical">
+
+            <ImageView android:id="@+id/series_detail_backdrop"
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:background="#ffeeeeee"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/background_light">
+
+                <FrameLayout
+                    android:id="@+id/series_detail_poster_frame"
+                    android:layout_width="140dp"
+                    android:layout_height="200dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="-60dp"
+                    android:padding="2dp"
+                    android:background="@android:color/background_light">
+
+                    <ImageView
+                        android:id="@+id/series_detail_poster"
+                        android:layout_width="136dp"
+                        android:layout_height="196dp"
+                        android:background="#ffe6e6e6"/>
+
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/series_detail_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/series_detail_poster_frame"
+                    android:layout_toRightOf="@id/series_detail_poster_frame"
+                    android:padding="10dp"
+                    android:text="Series Name"
+                    android:textSize="24sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/series_detail_air_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/series_detail_name"
+                    android:layout_toEndOf="@id/series_detail_poster_frame"
+                    android:layout_toRightOf="@id/series_detail_poster_frame"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:text="2010 - 2014"
+                    android:textSize="18sp"/>
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/background_light"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/activity.series_detail.button_subscribe"
+                    android:id="@+id/series_detail_button_subscribe"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="10dp"/>
+
+                <TextView
+                    android:id="@+id/series_detail_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Placeholder text"
+                    android:textSize="16sp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/series_detail_seasons"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="#ffdadada">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#ffdddddd"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="5dp"
+                    android:text="@string/activity.series_detail.seasons"
+                    android:textSize="20sp"
+                    android:textStyle="bold"/>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/background_light">
+
+                    <ProgressBar
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_horizontal"
+                        android:indeterminate="true"
+                        android:layout_margin="5dp"/>
+
+                </FrameLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+    </com.nirhart.parallaxscroll.views.ParallaxScrollView>
+</LinearLayout>
