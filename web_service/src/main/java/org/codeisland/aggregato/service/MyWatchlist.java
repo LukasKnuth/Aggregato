@@ -3,8 +3,8 @@ package org.codeisland.aggregato.service;
 import com.google.appengine.api.users.User;
 import org.codeisland.aggregato.service.frontend.FrontendHandler;
 import org.codeisland.aggregato.service.frontend.HandlerResult;
-import org.codeisland.aggregato.service.storage.Episode;
 import org.codeisland.aggregato.service.storage.Watchlist;
+import org.codeisland.aggregato.service.storage.tv.Episode;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

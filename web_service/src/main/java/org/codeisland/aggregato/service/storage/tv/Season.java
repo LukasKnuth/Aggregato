@@ -1,12 +1,14 @@
-package org.codeisland.aggregato.service.storage;
+package org.codeisland.aggregato.service.storage.tv;
 
 import com.google.api.server.spi.config.AnnotationBoolean;
 import com.google.api.server.spi.config.ApiResourceProperty;
 import com.google.api.server.spi.config.Nullable;
-import com.google.appengine.api.blobstore.BlobKey;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.*;
+import org.codeisland.aggregato.service.storage.Mergeable;
+import org.codeisland.aggregato.service.storage.components.ImageComponent;
+import org.codeisland.aggregato.service.storage.components.PublicationDateComponent;
 import org.codeisland.aggregato.service.util.CloudStorage;
 
 import java.util.*;
@@ -20,7 +22,7 @@ import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
  */
 @Entity
 @Cache
-public class Season implements Mergeable<Season>{
+public class Season implements Mergeable<Season> {
 
     private static final Logger logger = Logger.getLogger(Season.class.getName());
     static {
@@ -30,8 +32,8 @@ public class Season implements Mergeable<Season>{
     private @Id String key;
     private String name;
     private int season_nr;
-    private Date air_date;
-    private @ApiResourceProperty(ignored = AnnotationBoolean.TRUE) BlobKey poster;
+    private PublicationDateComponent air_date;
+    private @ApiResourceProperty(ignored = AnnotationBoolean.TRUE) ImageComponent poster;
     private @Load(Series.COMPLETE_TREE.class) List<Ref<Episode>> episodes = new ArrayList<>();
 
     @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
@@ -44,8 +46,9 @@ public class Season implements Mergeable<Season>{
         this.key = series.getId()+"s"+season_nr;
         this.name = name;
         this.season_nr = season_nr;
-        this.air_date = air_date;
+        this.air_date = new PublicationDateComponent(air_date);
         this.series = Ref.create(series);
+        this.poster = ImageComponent.placeholder(CloudStorage.ImageType.POSTER);
     }
 
     public void putEpisode(Episode episode){
@@ -87,7 +90,7 @@ public class Season implements Mergeable<Season>{
     }
 
     public String getPosterLink(){
-        return CloudStorage.serveImage(this.poster, CloudStorage.ImageType.POSTER);
+        return poster.getServingUrl();
     }
 
     public Series getSeries(){
@@ -110,7 +113,7 @@ public class Season implements Mergeable<Season>{
      * The date when the first episode of this season aired.
      */
     public Date getAirDate() {
-        return air_date;
+        return air_date.get();
     }
 
     public List<Episode> getEpisodes() {
@@ -122,11 +125,11 @@ public class Season implements Mergeable<Season>{
         return this.modified_episodes;
     }
 
-    public BlobKey getPoster() {
+    public ImageComponent getPoster() {
         return poster;
     }
 
-    public void setPoster(BlobKey poster) {
+    public void setPoster(ImageComponent poster) {
         this.poster = poster;
     }
 
@@ -141,12 +144,10 @@ public class Season implements Mergeable<Season>{
             this.name = other.name;
             was_modified = true;
         }
-        if (other.air_date != null && !other.air_date.equals(this.air_date)){
-            this.air_date = other.air_date;
+        if (this.air_date.merge(other.air_date)){
             was_modified = true;
         }
-        if (other.poster != null && !other.poster.equals(this.poster)){
-            this.setPoster(other.poster);
+        if (this.poster.update(other.getPoster())){
             was_modified = true;
         }
         return was_modified;

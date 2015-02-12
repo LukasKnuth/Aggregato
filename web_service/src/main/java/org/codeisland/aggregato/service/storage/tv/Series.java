@@ -1,11 +1,14 @@
-package org.codeisland.aggregato.service.storage;
+package org.codeisland.aggregato.service.storage.tv;
 
 import com.google.api.server.spi.config.AnnotationBoolean;
 import com.google.api.server.spi.config.ApiResourceProperty;
-import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.*;
+import org.codeisland.aggregato.service.storage.Mergeable;
+import org.codeisland.aggregato.service.storage.components.IdentifierComponent;
+import org.codeisland.aggregato.service.storage.components.ImageComponent;
+import org.codeisland.aggregato.service.storage.components.SearchableStringComponent;
 import org.codeisland.aggregato.service.util.CloudStorage;
 
 import java.util.*;
@@ -19,7 +22,7 @@ import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
  */
 @Entity
 @Cache
-public class Series implements Mergeable<Series>{
+public class Series implements Mergeable<Series> {
 
     /**
      * Loads the series and it's seasons, not the episodes.
@@ -33,17 +36,16 @@ public class Series implements Mergeable<Series>{
     private static final Logger logger = Logger.getLogger(Series.class.getName());
 
     private @Id String key;
-    private String name;
+    private SearchableStringComponent name;
     private String description;
     private int season_count;
     private Date start_date;
     private Date end_date;
-    private @Index String name_normalized; // We need this for case-insensitive filtering
-    private Map<String, String> identifiers = new HashMap<>();
+    private IdentifierComponent identifiers;
 
     private @ApiResourceProperty(ignored = AnnotationBoolean.TRUE) Date last_update;
-    private @ApiResourceProperty(ignored = AnnotationBoolean.TRUE) BlobKey poster;
-    private @ApiResourceProperty(ignored = AnnotationBoolean.TRUE) BlobKey backdrop;
+    private @ApiResourceProperty(ignored = AnnotationBoolean.TRUE) ImageComponent poster;
+    private @ApiResourceProperty(ignored = AnnotationBoolean.TRUE) ImageComponent backdrop;
     @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
     private @Load(WITH_SEASONS.class) List<Ref<Season>> seasons = new ArrayList<>();
     @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
@@ -57,11 +59,13 @@ public class Series implements Mergeable<Series>{
         String date_key = String.valueOf(start_date.getYear()+1900);
         this.key = name_key+"_"+date_key;
 
-        this.name = name;
-        this.name_normalized = name.toUpperCase();
+        this.name = new SearchableStringComponent(name);
         this.season_count = season_count;
         this.start_date = start_date;
         this.last_update = new Date();
+        this.identifiers = new IdentifierComponent();
+        this.poster = ImageComponent.placeholder(CloudStorage.ImageType.POSTER);
+        this.backdrop = ImageComponent.placeholder(CloudStorage.ImageType.BACKDROP);
     }
 
     @Override
@@ -91,31 +95,13 @@ public class Series implements Mergeable<Series>{
             this.start_date = other.start_date;
             was_modified = true;
         }
-        if (!this.identifiers.equals(other.identifiers)){
-            for (Map.Entry<String, String> id : other.identifiers.entrySet()) {
-                if (this.identifiers.containsKey(id.getKey())){
-                    // Key is already there, check the values!
-                    if (!this.identifiers.get(id.getKey()).equals(id.getValue())){
-                        // Values are different!
-                        logger.warning(String.format(
-                                "Identifiers differ for key '%s': Mine is '%s', Other is '%s'",
-                                id.getKey(), this.identifiers.get(id.getKey()), id.getValue()
-                        ));
-                        // TODO Maybe do some basic checking (if mine is empty or null and other isn't...)
-                    }
-                } else {
-                    // Key is not in our map...
-                    this.identifiers.put(id.getKey(), id.getValue());
-                    was_modified = true;
-                }
-            }
-        }
-        if (other.poster != null && !other.poster.equals(this.poster)){
-            this.setPoster(other.poster);
+        if (this.identifiers.merge(other.identifiers)){
             was_modified = true;
         }
-        if (other.backdrop != null && !other.backdrop.equals(this.backdrop)){
-            this.setBackdrop(other.backdrop);
+        if (this.poster.update(other.poster)){
+            was_modified = true;
+        }
+        if (this.backdrop.update(other.backdrop)){
             was_modified = true;
         }
         return was_modified;
@@ -223,7 +209,7 @@ public class Series implements Mergeable<Series>{
     }
 
     public String getName() {
-        return name;
+        return name.get();
     }
 
     public String getDescription() {
@@ -247,27 +233,27 @@ public class Series implements Mergeable<Series>{
     }
 
     @ApiResourceProperty(ignored = AnnotationBoolean.TRUE)
-    public BlobKey getPoster() {
+    public ImageComponent getPoster() {
         return poster;
     }
 
     public String getPosterLink(){
-        return CloudStorage.serveImage(this.poster, CloudStorage.ImageType.POSTER);
+        return this.poster.getServingUrl();
     }
 
-    public void setPoster(BlobKey poster) {
+    public void setPoster(ImageComponent poster) {
         this.poster = poster;
     }
 
-    public BlobKey getBackdrop() {
+    public ImageComponent getBackdrop() {
         return backdrop;
     }
 
     public String getBackdropLink(){
-        return CloudStorage.serveImage(this.backdrop, CloudStorage.ImageType.BACKDROP);
+        return this.backdrop.getServingUrl();
     }
 
-    public void setBackdrop(BlobKey backdrop) {
+    public void setBackdrop(ImageComponent backdrop) {
         this.backdrop = backdrop;
     }
 
@@ -276,16 +262,12 @@ public class Series implements Mergeable<Series>{
     }
 
     public String optIdentifier(String key, String fallback){
-        if (identifiers.containsKey(key)){
-            return identifiers.get(key);
-        } else {
-            return fallback;
-        }
+        return this.identifiers.opt(key, fallback);
     }
 
     public void putIdentifier(String key, String identifier){
         // TODO Fetchers should be able to add new Identifiers without saving the series themselfs. Maybe a global was_modified flag?
-        identifiers.put(key, identifier);
+        this.identifiers.put(key, identifier);
     }
 
     public String getId(){

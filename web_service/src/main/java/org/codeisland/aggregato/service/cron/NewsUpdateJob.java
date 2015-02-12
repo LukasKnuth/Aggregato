@@ -3,7 +3,7 @@ package org.codeisland.aggregato.service.cron;
 import org.codeisland.aggregato.service.fetcher.FetchManager;
 import org.codeisland.aggregato.service.fetcher.NewsFetcher;
 import org.codeisland.aggregato.service.storage.News;
-import org.codeisland.aggregato.service.storage.Series;
+import org.codeisland.aggregato.service.storage.tv.Series;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

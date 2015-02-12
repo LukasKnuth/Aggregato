@@ -1,7 +1,7 @@
 package org.codeisland.aggregato.service.fetcher;
 
-import org.codeisland.aggregato.service.storage.Season;
-import org.codeisland.aggregato.service.storage.Series;
+import org.codeisland.aggregato.service.storage.tv.Season;
+import org.codeisland.aggregato.service.storage.tv.Series;
 
 import java.util.List;
 

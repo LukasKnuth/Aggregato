@@ -1,13 +1,13 @@
 package org.codeisland.aggregato.service.fetcher.impl;
 
-import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import org.codeisland.aggregato.service.fetcher.SeriesFetcher;
-import org.codeisland.aggregato.service.storage.Episode;
-import org.codeisland.aggregato.service.storage.Season;
-import org.codeisland.aggregato.service.storage.Series;
+import org.codeisland.aggregato.service.storage.components.ImageComponent;
+import org.codeisland.aggregato.service.storage.tv.Episode;
+import org.codeisland.aggregato.service.storage.tv.Season;
+import org.codeisland.aggregato.service.storage.tv.Series;
 import org.codeisland.aggregato.service.util.CloudStorage;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -76,11 +76,11 @@ public class TMDBFetcher implements SeriesFetcher {
         }
     }
 
-    private static BlobKey storeImage(Series series, String partial_url, CloudStorage.ImageType type){
+    private static ImageComponent storeImage(Series series, String partial_url, CloudStorage.ImageType type){
         return CloudStorage.saveImage(getFullImageUrl(partial_url, type), type, series);
     }
 
-    private static BlobKey storeImage(Season season, String partial_url, CloudStorage.ImageType type){
+    private static ImageComponent storeImage(Season season, String partial_url, CloudStorage.ImageType type){
         return CloudStorage.saveImage(getFullImageUrl(partial_url, type), type, season);
     }
 
@@ -267,7 +267,7 @@ public class TMDBFetcher implements SeriesFetcher {
     @Override
     public boolean update(Series series) {
         int series_tmdb_id = getTmdbId(series);
-        boolean load_images = (series.getPoster() == null || series.getBackdrop() == null);
+        boolean load_images = (series.getPoster().needsUpdate() || series.getBackdrop().needsUpdate());
         Series newest = getSeriesForId(series_tmdb_id, load_images);
         boolean was_modified = series.merge(newest);
 
@@ -321,7 +321,7 @@ public class TMDBFetcher implements SeriesFetcher {
                         Season old_season = series.getSeason(season_nr);
                         if (old_season != null){
                             // If this season is already in the Database and has no Poster, fetch it!
-                            fetch_poster = old_season.getPoster() == null;
+                            fetch_poster = old_season.getPoster().needsUpdate();
                         }
                         Season changed_season = getSeason(series, season_nr, fetch_poster);
                         changed_seasons.put(season_change.getInt("season_id"), changed_season);

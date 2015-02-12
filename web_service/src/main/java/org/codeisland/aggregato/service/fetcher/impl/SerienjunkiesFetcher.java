@@ -7,7 +7,7 @@ import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 import org.codeisland.aggregato.service.fetcher.NewsFetcher;
 import org.codeisland.aggregato.service.storage.News;
-import org.codeisland.aggregato.service.storage.Series;
+import org.codeisland.aggregato.service.storage.tv.Series;
 
 import java.io.IOException;
 import java.net.URL;

@@ -1,17 +1,16 @@
-package org.codeisland.aggregato.service.storage;
+package org.codeisland.aggregato.service.storage.tv;
 
 import com.google.api.server.spi.config.AnnotationBoolean;
 import com.google.api.server.spi.config.ApiResourceProperty;
 import com.googlecode.objectify.ObjectifyService;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.*;
+import org.codeisland.aggregato.service.storage.Mergeable;
+import org.codeisland.aggregato.service.storage.components.PublicationDateComponent;
 
 import javax.annotation.Nullable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Locale;
 
 /**
  * @author Lukas Knuth
@@ -19,17 +18,16 @@ import java.util.Locale;
  */
 @Entity
 @Cache
-public class Episode implements Mergeable<Episode>{
+public class Episode implements Mergeable<Episode> {
 
     static {
         // We need this here explicitly, otherwise Ref.create throws an exception in the constructor if
         // ObjectifyProxy hasn't been used yet!
         ObjectifyService.register(Series.class);
     }
-    public static final SimpleDateFormat AIR_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
 
     private @Id String key;
-    private @Index String air_date;
+    private @Index PublicationDateComponent air_date;
     private @Index String title;
     private String description;
     private int episode_number;
@@ -40,9 +38,7 @@ public class Episode implements Mergeable<Episode>{
 
     private Episode() {} // Objectify needs this, visibility doesn't madder
     public Episode(Season season, String title, int episode_number, int season_number, @Nullable Date air_date, @Nullable String description) {
-        if (air_date != null){
-            this.air_date = AIR_FORMAT.format(air_date);
-        }
+        this.air_date = new PublicationDateComponent(air_date);
         this.key = season.getId()+"e"+episode_number;
         if (title == null || title.isEmpty()){
             this.title = String.format("s%se%s", season_number, episode_number);
@@ -56,15 +52,7 @@ public class Episode implements Mergeable<Episode>{
     }
 
     public Date getAirDate() {
-        if (this.air_date == null){
-            return null;
-        } else {
-            try {
-                return AIR_FORMAT.parse(this.air_date);
-            } catch (ParseException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        return this.air_date.get();
     }
 
     public String getTitle() {
@@ -104,8 +92,7 @@ public class Episode implements Mergeable<Episode>{
     @Override
     public boolean merge(Episode other) {
         boolean was_modified = false;
-        if (other.air_date != null && !other.air_date.equals(this.air_date)){
-            this.air_date = other.air_date;
+        if (air_date.merge(other.air_date)) {
             was_modified = true;
         }
         if (other.description != null){

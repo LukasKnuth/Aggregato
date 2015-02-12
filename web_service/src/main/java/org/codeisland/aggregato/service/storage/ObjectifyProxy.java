@@ -3,6 +3,9 @@ package org.codeisland.aggregato.service.storage;
 import com.googlecode.objectify.Objectify;
 import com.googlecode.objectify.ObjectifyFactory;
 import com.googlecode.objectify.ObjectifyService;
+import org.codeisland.aggregato.service.storage.tv.Episode;
+import org.codeisland.aggregato.service.storage.tv.Season;
+import org.codeisland.aggregato.service.storage.tv.Series;
 
 /**
  * A proxy for the normal {@link com.googlecode.objectify.ObjectifyService},

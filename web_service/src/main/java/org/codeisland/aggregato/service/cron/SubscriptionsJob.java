@@ -1,7 +1,7 @@
 package org.codeisland.aggregato.service.cron;
 
-import org.codeisland.aggregato.service.storage.Episode;
 import org.codeisland.aggregato.service.storage.Watchlist;
+import org.codeisland.aggregato.service.storage.tv.Episode;
 import org.codeisland.aggregato.service.util.CloudMessaging;
 
 import javax.servlet.ServletException;

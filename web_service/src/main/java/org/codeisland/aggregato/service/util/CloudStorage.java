@@ -12,13 +12,15 @@ import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.tools.cloudstorage.*;
 import com.google.common.io.ByteStreams;
-import org.codeisland.aggregato.service.storage.Season;
-import org.codeisland.aggregato.service.storage.Series;
+import org.codeisland.aggregato.service.storage.components.ImageComponent;
+import org.codeisland.aggregato.service.storage.tv.Season;
+import org.codeisland.aggregato.service.storage.tv.Series;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.channels.Channels;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -38,14 +40,6 @@ public class CloudStorage {
     private static final String DEFAULT_GCS_BUCKET = AppIdentityServiceFactory.getAppIdentityService().getDefaultGcsBucketName();
 
     private CloudStorage(){}
-
-    /*
-        The fundamental problem with this approach is, that getServingUrl(BlobKey) is is slow as fuck.
-        TODO Store the image-link (an whether it's a real image or a placeholder) in the Entities.
-        This comes at the expense of re-creating the entire DB ??
-        Maybe make an Image class that holds the link-string or null and implement methods on it like
-         needsUpdate() and such, to make decisions in the rest of the code more obvious.
-    */
 
     public enum ImageType{
         POSTER("placeholders/placeholder_poster.png"),
@@ -102,20 +96,24 @@ public class CloudStorage {
         }
     }
 
-    public static BlobKey saveImage(String url, ImageType type, Series series){
+    public static ImageComponent saveImage(String url, ImageType type, Series series){
         String image_name = String.format("series/%s_%s", series.getId(), type);
         GcsFilename file = new GcsFilename(DEFAULT_GCS_BUCKET, image_name);
         try {
-            return CloudStorage.saveImage(url, file);
+            BlobKey image = CloudStorage.saveImage(url, file);
+            String serving_url = CloudStorage.serveImage(image, type);
+            return new ImageComponent(serving_url, new Date(), image);
         } catch (IOException e) {
             return null;
         }
     }
-    public static BlobKey saveImage(String url, ImageType type, Season season){
+    public static ImageComponent saveImage(String url, ImageType type, Season season){
         String image_name = String.format("season/%s_%s", season.getId(), type);
         GcsFilename file = new GcsFilename(DEFAULT_GCS_BUCKET, image_name);
         try {
-            return CloudStorage.saveImage(url, file);
+            BlobKey image = CloudStorage.saveImage(url, file);
+            String serving_url = CloudStorage.serveImage(image, type);
+            return new ImageComponent(serving_url, new Date(), image);
         } catch (IOException e) {
             return null;
         }

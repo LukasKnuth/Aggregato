@@ -2,7 +2,7 @@ package org.codeisland.aggregato.service;
 
 import org.codeisland.aggregato.service.frontend.FrontendHandler;
 import org.codeisland.aggregato.service.frontend.HandlerResult;
-import org.codeisland.aggregato.service.storage.Episode;
+import org.codeisland.aggregato.service.storage.tv.Episode;
 import org.codeisland.aggregato.service.workers.QueueManager;
 
 import javax.servlet.ServletException;

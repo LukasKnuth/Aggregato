@@ -4,13 +4,14 @@ import com.google.api.server.spi.config.Nullable;
 import com.google.appengine.api.users.User;
 import com.googlecode.objectify.Ref;
 import com.googlecode.objectify.annotation.*;
+import org.codeisland.aggregato.service.storage.tv.Episode;
 
 import java.util.*;
 
 import static org.codeisland.aggregato.service.storage.ObjectifyProxy.ofy;
 
 /**
- * <p>A list of {@link org.codeisland.aggregato.service.storage.Episode}s that a given user
+ * <p>A list of {@link org.codeisland.aggregato.service.storage.tv.Episode}s that a given user
  *  wants to watch in the future.</p>
  * <p>Entries are either manually added to the list or automatically, if the user subscribed
  *  to a series.</p>

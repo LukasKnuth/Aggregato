@@ -6,7 +6,12 @@ import com.google.api.server.spi.config.ApiNamespace;
 import com.google.api.server.spi.config.Named;
 import com.google.appengine.api.oauth.OAuthRequestException;
 import com.google.appengine.api.users.User;
-import org.codeisland.aggregato.service.storage.*;
+import org.codeisland.aggregato.service.storage.News;
+import org.codeisland.aggregato.service.storage.Watchlist;
+import org.codeisland.aggregato.service.storage.components.PublicationDateComponent;
+import org.codeisland.aggregato.service.storage.tv.Episode;
+import org.codeisland.aggregato.service.storage.tv.Season;
+import org.codeisland.aggregato.service.storage.tv.Series;
 import org.codeisland.aggregato.service.workers.QueueManager;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -42,8 +47,8 @@ public class SeriesAPI {
     public List<Series> findSeries(@Named("name") String name){
         String name_normalized = name.toUpperCase();
         List<Series> seriesList = ofy().load().type(Series.class).
-                filter("name_normalized >=", name_normalized).
-                filter("name_normalized <", name_normalized + "\uFFFD").
+                filter("name.normalized >=", name_normalized).
+                filter("name.normalized <", name_normalized + "\uFFFD").
                 list();
         if (seriesList.size() == 0){
             // Not found, add a crawl-job:
@@ -74,10 +79,10 @@ public class SeriesAPI {
         Date start_date = start.toDate();
         if (user == null){
             // Not logged in, show 10 episodes airing next:
-            String date_str = Episode.AIR_FORMAT.format(start_date);
+            String date_str = PublicationDateComponent.FORMAT.format(start_date);
             return ofy().load().type(Episode.class).
-                    filter("air_date >=", date_str).
-                    limit(10).order("air_date").list();
+                    filter("air_date.date >=", date_str).
+                    limit(10).order("air_date.date").list();
         } else {
             // Logged in, use episodes from subscribed shows:
             List<Episode> upcoming = new ArrayList<>();
@@ -113,9 +118,9 @@ public class SeriesAPI {
         if (user == null){
             // Not logged in, show all Episodes from that month:
             return ofy().load().type(Episode.class).
-                    filter("air_date >=", start.toString(formatter)).
-                    filter("air_date <", end.toString(formatter)).
-                    order("air_date").list();
+                    filter("air_date.date >=", start.toString(formatter)).
+                    filter("air_date.date <", end.toString(formatter)).
+                    order("air_date.date").list();
         } else {
             // Logged in, show only episodes from subscribed shows:
             List<Episode> month_episodes = new LinkedList<>();
